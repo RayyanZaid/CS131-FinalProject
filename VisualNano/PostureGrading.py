@@ -74,11 +74,13 @@ def postureGrading():
             # Display the frame. Might delete this later (just for debugging)
             cv2.imshow('Video Stream', frame)
 
-            neck_spine , shoulder_align, sitting_posture = get_pose_estimation(frame,pose)
+            sitting_posture, holding_posture, shoulder_alignment, leg_position = get_pose_estimation(frame,pose)
 
-            print(f"Neck Spine : {neck_spine}")
-            print(f"Shoulder Algin : {shoulder_align}")
             print(f"Sitting Posture : {sitting_posture}")
+            print(f"Holding Posture : {holding_posture}")
+            print(f"Shoulder Algin : {shoulder_alignment}")
+            print(f"Leg Position : {leg_position}")
+            
 
     cap.release()
     cv2.destroyAllWindows()
