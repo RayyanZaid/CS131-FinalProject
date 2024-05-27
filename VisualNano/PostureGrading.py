@@ -74,12 +74,14 @@ def postureGrading():
             # Display the frame. Might delete this later (just for debugging)
             cv2.imshow('Video Stream', frame)
 
-            sitting_posture, holding_posture, shoulder_alignment, leg_position = get_pose_estimation(frame,pose)
+            sitting_posture_angle, holding_posture_angle, shoulder_alignment_angle, leg_position_angle = get_pose_estimation(frame,pose)
 
-            print(f"Sitting Posture : {sitting_posture}")
-            print(f"Holding Posture : {holding_posture}")
-            print(f"Shoulder Algin : {shoulder_alignment}")
-            print(f"Leg Position : {leg_position}")
+            print(f"Sitting Posture : {sitting_posture_angle}")
+            print(f"Holding Posture : {holding_posture_angle}")
+            print(f"Shoulder Algin : {shoulder_alignment_angle}")
+            print(f"Leg Position : {leg_position_angle}")
+
+
             
 
     cap.release()
@@ -130,6 +132,98 @@ def get_pose_estimation(image, pose):
     
 
     return sitting_posture, holding_posture, shoulder_alignment, leg_position
+
+
+# ChatGPT generated
+
+# ChatGPT Prompt:  craete a 2-tuple : int dictionary where highest grade range set from 85 to 100, where the grade is 100%. 
+# From this range, decrement grade by 5 points for each 5-degree decrease until we reach a grade of 60. 
+# Angles outside of the ranges specified will be graded as 0.
+
+sittingPostureDict = {
+
+    (90, 110): 100,
+
+
+    (85, 89): 90,
+    (80, 84): 85,
+    (75, 79): 80,
+    (70, 74): 75,
+    (65, 69): 70,
+    (60, 64): 65,
+    (0, 59): 60,
+
+
+    (111, 115): 90,
+    (116, 120): 85,
+    (121, 125): 80,
+    (126, 130): 75,
+    (131, 135): 70,
+    (136, 140): 65,
+    (141, 145): 60,
+    (146, 180): 0 
+}
+
+# Define the holding posture dictionary with detailed ranges
+holdingPostureDict = {
+
+    (80, 95): 100,
+
+
+    (75, 79): 95,
+    (70, 74): 90,
+    (65, 69): 85,
+    (60, 64): 80,
+    (55, 59): 75,
+    (50, 54): 70,
+    (45, 49): 65,
+    (40, 44): 60,
+    (0,39) : 0,
+
+
+    (96, 100): 95,
+    (101, 105): 90,
+    (106, 110): 85,
+    (111, 115): 80,
+    (116, 120): 75,
+    (121, 125): 70,
+    (126, 130): 65,
+    (131, 135): 60,
+    (136,180) : 0
+}
+
+
+legPositionDict = {
+    (85, 100): 100,
+    (80, 84): 95,
+    (75, 79): 90,
+    (70, 74): 85,
+    (65, 69): 80,
+    (60, 64): 75,
+    (55, 59): 70,
+    (50, 54): 65,
+    (45, 49): 60,
+    (0, 44) : 0,
+    # Extending ranges above 100
+    (101, 105): 95,
+    (106, 110): 90,
+    (111, 115): 85,
+    (116, 120): 80,
+    (121, 125): 75,
+    (126, 130): 70,
+    (131, 135): 65,
+    (136, 140): 60,
+    (141, 180) : 0,
+}
+
+
+def gradePostureForEachFrame(angle, angleRangeToGrade):
+
+    for (low, high), grade in angleRangeToGrade.items():
+        if low <= angle <= high:
+            return grade
+    return None  
+
 
 if __name__ == '__main__':
     postureGrading()
