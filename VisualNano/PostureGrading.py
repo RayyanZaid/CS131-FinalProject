@@ -32,6 +32,14 @@ def postureGrading():
     # Variable to detect if user says "Stop"
     userInterruptedTesting = False
 
+
+    sittingPostureGrade = 0
+    holdingPostureGrade = 0
+    legPositionGrade = 0
+
+    numImages = 0
+
+
     with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
         while cap.isOpened():
 
@@ -76,10 +84,17 @@ def postureGrading():
 
             sitting_posture_angle, holding_posture_angle, shoulder_alignment_angle, leg_position_angle = get_pose_estimation(frame,pose)
 
-            print(f"Sitting Posture : {sitting_posture_angle}")
-            print(f"Holding Posture : {holding_posture_angle}")
-            print(f"Shoulder Algin : {shoulder_alignment_angle}")
-            print(f"Leg Position : {leg_position_angle}")
+            # print(f"Sitting Posture : {sitting_posture_angle}")
+            # print(f"Holding Posture : {holding_posture_angle}")
+            # print(f"Shoulder Algin : {shoulder_alignment_angle}")
+            # print(f"Leg Position : {leg_position_angle}")
+
+            sittingPostureGrade += gradePostureForEachFrame(sitting_posture_angle)
+            holdingPostureGrade += gradePostureForEachFrame(holding_posture_angle)
+            legPositionGrade += gradePostureForEachFrame(leg_position_angle)
+
+
+
 
 
             
@@ -224,6 +239,17 @@ def gradePostureForEachFrame(angle, angleRangeToGrade):
             return grade
     return None  
 
+def wrapUpTesting(sittingPostureGrade, holdingPostureGrade, legPositionGrade, numFrames, imageToFeedbackDict):
+
+    # Calculate Final Weighted Grade
+
+    # Send Feedback to Database
+
+    # Return the Grade
+
+    pass
+
+    
 
 if __name__ == '__main__':
     postureGrading()
