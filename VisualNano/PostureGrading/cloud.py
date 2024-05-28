@@ -1,6 +1,10 @@
 from google.cloud import storage, firestore
 
-from globals import testName
+from datetime import datetime
+
+# will be a variable sent from the Aural Nano
+
+testName = "testName " + datetime.now().strftime("%Y-%m-%d %H:%M:%S") 
 
 import os
 
@@ -48,21 +52,21 @@ def store_grade_with_files(user_id, grade, local_image_paths):
 
 
 
-# def add_data():
-#     doc_ref = db.collection('users').document('user1')
-#     doc_ref.set({
-#         'first': 'Ada',
-#         'last': 'Lovelace',
-#         'born': 1815
-#     })
+def add_data():
+    doc_ref = db.collection('users').document('user1')
+    doc_ref.set({
+        'first': 'Ada',
+        'last': 'Lovelace',
+        'born': 1815
+    })
 
-# # Function to retrieve data from Firestore
-# def get_data():
-#     users_ref = db.collection('users')
-#     docs = users_ref.stream()
-#     for doc in docs:
-#         print(f'{doc.id} => {doc.to_dict()}')
+# Function to retrieve data from Firestore
+def get_data():
+    users_ref = db.collection('users')
+    docs = users_ref.stream()
+    for doc in docs:
+        print(f'{doc.id} => {doc.to_dict()}')
 
-# # Example of adding and getting data
-# add_data()
-# get_data()
+# Example of adding and getting data
+add_data()
+get_data()
