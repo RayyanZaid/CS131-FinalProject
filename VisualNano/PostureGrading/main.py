@@ -239,17 +239,23 @@ def gradePostureForEachFrame(angle, angleRangeToGrade):
             return grade
     return None  
 
-def wrapUpTesting(sittingPostureGrade, holdingPostureGrade, legPositionGrade, numFrames, imageToFeedbackDict):
+
+
+def wrapUpTesting(sittingPostureGrade, holdingPostureGrade, legPositionGrade, imageToFeedbackDict, testName):
 
     # Calculate Final Weighted Grade
 
-    # Send Feedback to Database
+    # Most important is Sitting, then Holding, then Leg
+    
+    finalGrade = 0.4 * sittingPostureGrade + 0.35 * holdingPostureGrade + 0.25 * legPositionGrade
+
+    # Send Feedback and Grade to Cloud Database
+
+
 
     # Return the Grade
 
-    pass
-
-    
+    return finalGrade
 
 if __name__ == '__main__':
     postureGrading()
