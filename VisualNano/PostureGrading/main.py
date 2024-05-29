@@ -43,6 +43,11 @@ def postureGrading():
 
 
     numFrames = 0
+
+    holdingArray = []
+
+    legArray = []
+
     with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
         while cap.isOpened():
             
@@ -98,7 +103,9 @@ def postureGrading():
             cv2.imshow('Video Stream', frame)
 
             sitting_posture_angle, holding_posture_angle, shoulder_alignment_angle, leg_position_angle = get_pose_estimation(frame,pose)
-
+            
+            if holding_posture_angle > 120:
+                print('bruh')
             # print(f"Sitting Posture : {sitting_posture_angle}")
             # print(f"Holding Posture : {holding_posture_angle}")
             # print(f"Shoulder Algin : {shoulder_alignment_angle}")
@@ -108,6 +115,8 @@ def postureGrading():
             holdingPostureGrade += gradePostureForEachFrame(holding_posture_angle, holdingPostureDict)
             legPositionGrade += gradePostureForEachFrame(leg_position_angle, legPositionDict)
 
+            holdingArray.append(holding_posture_angle)
+            legArray.append(leg_position_angle)
 
             
 
@@ -196,54 +205,52 @@ sittingPostureDict = {
 
 # Define the holding posture dictionary with detailed ranges
 holdingPostureDict = {
+    (75, 85): 100,
 
-    (80, 95): 100,
+    (70, 74): 95,
+    (65, 69): 90,
+    (60, 64): 85,
+    (55, 59): 80,
+    (50, 54): 75,
+    (45, 49): 70,
+    (40, 44): 65,
+    (35, 39): 60,
+    (0, 34): 0,  
 
-
-    (75, 79): 95,
-    (70, 74): 90,
-    (65, 69): 85,
-    (60, 64): 80,
-    (55, 59): 75,
-    (50, 54): 70,
-    (45, 49): 65,
-    (40, 44): 60,
-    (0,39) : 0,
-
-
-    (96, 100): 95,
-    (101, 105): 90,
-    (106, 110): 85,
-    (111, 115): 80,
-    (116, 120): 75,
-    (121, 125): 70,
-    (126, 130): 65,
-    (131, 135): 60,
-    (136,180) : 0
+    (86, 90): 95,
+    (91, 95): 90,
+    (96, 100): 85,
+    (101, 105): 80,
+    (106, 110): 75,
+    (111, 115): 70,
+    (116, 120): 65,
+    (121, 125): 60,
+    (126, 180): 0
 }
 
 
+
 legPositionDict = {
-    (85, 100): 100,
-    (80, 84): 95,
-    (75, 79): 90,
-    (70, 74): 85,
-    (65, 69): 80,
-    (60, 64): 75,
-    (55, 59): 70,
-    (50, 54): 65,
-    (45, 49): 60,
+    (90, 105): 100,
+    (85, 89): 95,
+    (80, 84): 90,
+    (75, 79): 85,
+    (70, 74): 80,
+    (65, 69): 75,
+    (60, 64): 70,
+    (55, 59): 65,
+    (50, 54): 60,
     (0, 44) : 0,
     # Extending ranges above 100
-    (101, 105): 95,
-    (106, 110): 90,
-    (111, 115): 85,
-    (116, 120): 80,
-    (121, 125): 75,
-    (126, 130): 70,
-    (131, 135): 65,
-    (136, 140): 60,
-    (141, 180) : 0,
+    (106, 110): 95,
+    (111, 115): 90,
+    (116, 120): 85,
+    (121, 125): 80,
+    (126, 130): 75,
+    (131, 135): 70,
+    (136, 140): 65,
+    (141, 145) : 60,
+    (146,180) : 0
 }
 
 
