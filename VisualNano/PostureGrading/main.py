@@ -104,8 +104,8 @@ def postureGrading():
 
             sitting_posture_angle, holding_posture_angle, shoulder_alignment_angle, leg_position_angle = get_pose_estimation(frame,pose)
             
-            if holding_posture_angle > 120:
-                print('bruh')
+            # if holding_posture_angle > 120:
+            #     print('bruh')
             # print(f"Sitting Posture : {sitting_posture_angle}")
             # print(f"Holding Posture : {holding_posture_angle}")
             # print(f"Shoulder Algin : {shoulder_alignment_angle}")
@@ -119,7 +119,10 @@ def postureGrading():
             legArray.append(leg_position_angle)
 
             
+            # TODO: Give Feedback
 
+            if sitting_posture_angle > 115:
+                print("Bring your feet closer to the chair. Feet are too far in front of you")
 
             
 
