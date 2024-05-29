@@ -28,6 +28,8 @@ def postureGrading():
     # Variable to keep track of testing status. 
     # Will recieve signal from other Nano to switch testingFinished = True
     testingFinished = False
+    # For debugging, let's say testingFinished = True after 300 frames
+
 
     # Variable to detect if user says "Stop"
     userInterruptedTesting = False
@@ -40,9 +42,14 @@ def postureGrading():
     numImages = 0
 
 
+    numFrames = 0
     with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
         while cap.isOpened():
+            
+            numFrames += 1
 
+            if numFrames == 51:
+                testingFinished = True
 
             interruptionForDebugging = cv2.waitKey(1) and 0xFF == ord('q')
 
@@ -54,6 +61,14 @@ def postureGrading():
                 break
 
             if testingFinished:
+                sittingPostureGrade /= numFrames
+                holdingPostureGrade /= numFrames
+                legPositionGrade /= numFrames
+
+                print(f"Sitting Posture Grade : {sittingPostureGrade}")
+                print(f"Holding Posture Grade : {holdingPostureGrade}")
+                
+                print(f"Leg Position Grade : {legPositionGrade}")
 
                 print("Need to calculate score here and send pictures of posture to database")
 
@@ -89,12 +104,12 @@ def postureGrading():
             # print(f"Shoulder Algin : {shoulder_alignment_angle}")
             # print(f"Leg Position : {leg_position_angle}")
 
-            sittingPostureGrade += gradePostureForEachFrame(sitting_posture_angle)
-            holdingPostureGrade += gradePostureForEachFrame(holding_posture_angle)
-            legPositionGrade += gradePostureForEachFrame(leg_position_angle)
+            sittingPostureGrade += gradePostureForEachFrame(sitting_posture_angle, sittingPostureDict)
+            holdingPostureGrade += gradePostureForEachFrame(holding_posture_angle, holdingPostureDict)
+            legPositionGrade += gradePostureForEachFrame(leg_position_angle, legPositionDict)
 
 
-
+            
 
 
             
@@ -151,7 +166,7 @@ def get_pose_estimation(image, pose):
 
 # ChatGPT generated
 
-# ChatGPT Prompt:  craete a 2-tuple : int dictionary where highest grade range set from 85 to 100, where the grade is 100%. 
+# ChatGPT Prompt:  create a 2-tuple : int dictionary where highest grade range set from 85 to 100, where the grade is 100%. 
 # From this range, decrement grade by 5 points for each 5-degree decrease until we reach a grade of 60. 
 # Angles outside of the ranges specified will be graded as 0.
 
@@ -237,7 +252,8 @@ def gradePostureForEachFrame(angle, angleRangeToGrade):
     for (low, high), grade in angleRangeToGrade.items():
         if low <= angle <= high:
             return grade
-    return None  
+        
+    return -1  
 
 
 
