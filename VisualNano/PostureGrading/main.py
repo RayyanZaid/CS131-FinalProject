@@ -36,7 +36,7 @@ def postureGrading():
 
 
     sittingPostureGrade = 0
-    holdingPostureGrade = 0
+    neckPostureGrade = 0
     legPositionGrade = 0
 
     numImages = 0
@@ -44,7 +44,7 @@ def postureGrading():
 
     numFrames = 0
 
-    holdingArray = []
+    neckArray = []
 
     legArray = []
 
@@ -53,7 +53,7 @@ def postureGrading():
             
             numFrames += 1
 
-            if numFrames == 51:
+            if numFrames == 201:
                 testingFinished = True
 
             interruptionForDebugging = cv2.waitKey(1) and 0xFF == ord('q')
@@ -67,11 +67,11 @@ def postureGrading():
 
             if testingFinished:
                 sittingPostureGrade /= numFrames
-                holdingPostureGrade /= numFrames
+                neckPostureGrade /= numFrames
                 legPositionGrade /= numFrames
 
                 print(f"Sitting Posture Grade : {sittingPostureGrade}")
-                print(f"Holding Posture Grade : {holdingPostureGrade}")
+                print(f"Neck Posture Grade : {neckPostureGrade}")
                 
                 print(f"Leg Position Grade : {legPositionGrade}")
 
@@ -102,7 +102,7 @@ def postureGrading():
             # Display the frame. Might delete this later (just for debugging)
             cv2.imshow('Video Stream', frame)
 
-            sitting_posture_angle, holding_posture_angle, shoulder_alignment_angle, leg_position_angle = get_pose_estimation(frame,pose)
+            sitting_posture_angle, neck_posture_angle, shoulder_alignment_angle, leg_position_angle = get_pose_estimation(frame,pose)
             
             # if holding_posture_angle > 120:
             #     print('bruh')
@@ -112,10 +112,10 @@ def postureGrading():
             # print(f"Leg Position : {leg_position_angle}")
 
             sittingPostureGrade += gradePostureForEachFrame(sitting_posture_angle, sittingPostureDict)
-            holdingPostureGrade += gradePostureForEachFrame(holding_posture_angle, holdingPostureDict)
+            neckPostureGrade += gradePostureForEachFrame(neck_posture_angle, holdingPostureDict)
             legPositionGrade += gradePostureForEachFrame(leg_position_angle, legPositionDict)
 
-            holdingArray.append(holding_posture_angle)
+            neckArray.append(neck_posture_angle)
             legArray.append(leg_position_angle)
 
             
@@ -153,10 +153,10 @@ def get_pose_estimation(image, pose):
     )
 
     # Calculate specific angles from the landmarks
-    holding_posture = calculate_angle(
+    neck_posture = calculate_angle(
+        [landmarks[mp_pose.PoseLandmark.NOSE].x, landmarks[mp_pose.PoseLandmark.NOSE].y],
         [landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER].x, landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER].y],
-        [landmarks[mp_pose.PoseLandmark.LEFT_ELBOW].x, landmarks[mp_pose.PoseLandmark.LEFT_ELBOW].y],
-        [landmarks[mp_pose.PoseLandmark.LEFT_WRIST].x, landmarks[mp_pose.PoseLandmark.LEFT_WRIST].y]
+        [landmarks[mp_pose.PoseLandmark.LEFT_HIP].x, landmarks[mp_pose.PoseLandmark.LEFT_HIP].y]
     )
 
     shoulder_alignment = calculate_angle(
@@ -173,7 +173,7 @@ def get_pose_estimation(image, pose):
 
     
 
-    return sitting_posture, holding_posture, shoulder_alignment, leg_position
+    return sitting_posture, neck_posture, shoulder_alignment, leg_position
 
 
 # ChatGPT generated
@@ -267,13 +267,13 @@ def gradePostureForEachFrame(angle, angleRangeToGrade):
 
 
 
-def wrapUpTesting(sittingPostureGrade, holdingPostureGrade, legPositionGrade, imageToFeedbackDict, testName):
+def wrapUpTesting(sittingPostureGrade, neckPostureGrade, legPositionGrade, imageToFeedbackDict, testName):
 
     # Calculate Final Weighted Grade
 
     # Most important is Sitting, then Holding, then Leg
     
-    finalGrade = 0.4 * sittingPostureGrade + 0.35 * holdingPostureGrade + 0.25 * legPositionGrade
+    finalGrade = 0.4 * sittingPostureGrade + 0.35 * neckPostureGrade + 0.25 * legPositionGrade
 
     # Send Feedback and Grade to Cloud Database
 
