@@ -102,13 +102,12 @@ def postureGrading():
             # Display the frame. Might delete this later (just for debugging)
             cv2.imshow('Video Stream', frame)
 
-            sitting_posture_angle, neck_posture_angle, shoulder_alignment_angle, leg_position_angle = get_pose_estimation(frame,pose)
+            sitting_posture_angle, neck_posture_angle, leg_position_angle = get_pose_estimation(frame,pose)
             
             # if holding_posture_angle > 120:
             #     print('bruh')
             # print(f"Sitting Posture : {sitting_posture_angle}")
             # print(f"Holding Posture : {holding_posture_angle}")
-            # print(f"Shoulder Algin : {shoulder_alignment_angle}")
             # print(f"Leg Position : {leg_position_angle}")
 
             sittingPostureGrade += gradePostureForEachFrame(sitting_posture_angle, sittingPostureDict)
@@ -159,11 +158,7 @@ def get_pose_estimation(image, pose):
         [landmarks[mp_pose.PoseLandmark.LEFT_HIP].x, landmarks[mp_pose.PoseLandmark.LEFT_HIP].y]
     )
 
-    shoulder_alignment = calculate_angle(
-        [landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER].x, landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER].y],
-        [landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER].x, landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER].y],
-        [landmarks[mp_pose.PoseLandmark.LEFT_HIP].x, landmarks[mp_pose.PoseLandmark.LEFT_HIP].y]
-    )
+
 
     leg_position = calculate_angle(
         [landmarks[mp_pose.PoseLandmark.LEFT_HIP].x, landmarks[mp_pose.PoseLandmark.LEFT_HIP].y],
@@ -173,7 +168,7 @@ def get_pose_estimation(image, pose):
 
     
 
-    return sitting_posture, neck_posture, shoulder_alignment, leg_position
+    return sitting_posture, neck_posture, leg_position
 
 
 # ChatGPT generated
@@ -184,25 +179,25 @@ def get_pose_estimation(image, pose):
 
 sittingPostureDict = {
 
-    (90, 110): 100,
+    (90, 100): 100,
 
 
     (85, 89): 90,
-    (80, 84): 85,
-    (75, 79): 80,
-    (70, 74): 75,
-    (65, 69): 70,
-    (60, 64): 65,
-    (0, 59): 60,
+    (80, 84): 80,
+    (75, 79): 70,
+    (70, 74): 60,
+    (65, 69): 50,
+    (60, 64): 40,
+    (0, 59): 0,
 
 
-    (111, 115): 90,
-    (116, 120): 85,
-    (121, 125): 80,
-    (126, 130): 75,
-    (131, 135): 70,
-    (136, 140): 65,
-    (141, 145): 60,
+    (101, 105): 90,
+    (106, 110): 80,
+    (111, 115): 70,
+    (116, 120): 60,
+    (121, 125): 50,
+    (126, 130): 40,
+    (130, 180): 0,
     (146, 180): 0 
 }
 
