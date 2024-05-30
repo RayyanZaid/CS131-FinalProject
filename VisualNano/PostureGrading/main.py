@@ -111,9 +111,10 @@ def postureGrading():
             # print(f"Leg Position : {leg_position_angle}")
 
             sittingPostureGrade += gradePostureForEachFrame(sitting_posture_angle, sittingPostureDict)
-            neckPostureGrade += gradePostureForEachFrame(neck_posture_angle, holdingPostureDict)
+            neckPostureGrade += gradePostureForEachFrame(neck_posture_angle, neckPostureDict)
             legPositionGrade += gradePostureForEachFrame(leg_position_angle, legPositionDict)
 
+            print(legPositionGrade)
             neckArray.append(neck_posture_angle)
             legArray.append(leg_position_angle)
 
@@ -188,7 +189,7 @@ sittingPostureDict = {
     (70, 74): 60,
     (65, 69): 50,
     (60, 64): 40,
-    (0, 59): 0,
+    (0, 59) :  0,
 
 
     (101, 105): 90,
@@ -197,58 +198,45 @@ sittingPostureDict = {
     (116, 120): 60,
     (121, 125): 50,
     (126, 130): 40,
-    (130, 180): 0,
-    (146, 180): 0 
+    (130, 180):  0,
 }
 
 # Define the holding posture dictionary with detailed ranges
-holdingPostureDict = {
-    (75, 85): 100,
+neckPostureDict = {
+    (145, 155): 100,
 
-    (70, 74): 95,
-    (65, 69): 90,
-    (60, 64): 85,
-    (55, 59): 80,
-    (50, 54): 75,
-    (45, 49): 70,
-    (40, 44): 65,
-    (35, 39): 60,
-    (0, 34): 0,  
+    (130, 144): 95,
+    (125, 129): 85,
+    (120, 124): 75,
+    (115, 119): 65,
+    (100, 114): 50,
+    (0,    99):  0,
 
-    (86, 90): 95,
-    (91, 95): 90,
-    (96, 100): 85,
-    (101, 105): 80,
-    (106, 110): 75,
-    (111, 115): 70,
-    (116, 120): 65,
-    (121, 125): 60,
-    (126, 180): 0
+    (156, 160) : 95,
+    (161, 165) : 90,
+    (166, 170) : 80,
+    (171, 180) : 70,
+
 }
 
 
 
 legPositionDict = {
-    (90, 105): 100,
-    (85, 89): 95,
-    (80, 84): 90,
-    (75, 79): 85,
+    (75, 95): 100,
     (70, 74): 80,
     (65, 69): 75,
     (60, 64): 70,
     (55, 59): 65,
     (50, 54): 60,
     (0, 44) : 0,
-    # Extending ranges above 100
-    (106, 110): 95,
-    (111, 115): 90,
-    (116, 120): 85,
-    (121, 125): 80,
-    (126, 130): 75,
-    (131, 135): 70,
-    (136, 140): 65,
-    (141, 145) : 60,
-    (146,180) : 0
+
+
+    (96, 100): 95,
+    (101, 105): 90,
+    (106, 110): 80,
+    (111, 115): 70,
+    (116, 125): 60,
+    (126, 180): 0,
 }
 
 
@@ -258,7 +246,7 @@ def gradePostureForEachFrame(angle, angleRangeToGrade):
         if low <= angle <= high:
             return grade
         
-    return -1  
+    return 100
 
 
 
