@@ -1,9 +1,5 @@
 import cv2
-
-# To get angles between joints
 import mediapipe as mp
-
-
 import numpy as np
 
 # MediaPipe drawing utility
@@ -11,123 +7,69 @@ mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_pose = mp.solutions.pose
 
-
-# main function for posture grading video stream
-    # 1) while loop that records user
-    # 2) use mediapipe to get joints
-    # 3) calculate angles to keep track of posture
-
 def postureGrading():
-
     cap = cv2.VideoCapture(0)
     if not cap.isOpened():
         print("Error: Could not open video stream")
         return
 
+    # Define the codec and create VideoWriter object
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # Codec
+    out = cv2.VideoWriter('LegPositionTesting.mp4', fourcc, 20.0, (640, 480))  # Output file, codec, fps, resolution
 
-    # Variable to keep track of testing status. 
-    # Will recieve signal from other Nano to switch testingFinished = True
     testingFinished = False
-    # For debugging, let's say testingFinished = True after 300 frames
-
-
-    # Variable to detect if user says "Stop"
     userInterruptedTesting = False
-
-
     sittingPostureGrade = 0
     neckPostureGrade = 0
     legPositionGrade = 0
-
-    numImages = 0
-
-
     numFrames = 0
-
-    neckArray = []
-
-    legArray = []
 
     with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
         while cap.isOpened():
-            
             numFrames += 1
-
             if numFrames == 201:
                 testingFinished = True
 
-            interruptionForDebugging = cv2.waitKey(1) and 0xFF == ord('q')
+            if cv2.waitKey(1) & 0xFF == ord('q') or userInterruptedTesting or testingFinished:
+                if testingFinished:
+                    # Compute averages
+                    print(f"Sitting Posture Grade: {sittingPostureGrade / numFrames}")
+                    print(f"Neck Posture Grade: {neckPostureGrade / numFrames}")
 
-            if interruptionForDebugging:
-                print("In Debug")
-
-            if  userInterruptedTesting:
-                print("Do not keep results of this rest")
+                    print(f"Leg Position Grade: {legPositionGrade / numFrames}")
                 break
-
-            if testingFinished:
-                sittingPostureGrade /= numFrames
-                neckPostureGrade /= numFrames
-                legPositionGrade /= numFrames
-
-                print(f"Sitting Posture Grade : {sittingPostureGrade}")
-                print(f"Neck Posture Grade : {neckPostureGrade}")
-                
-                print(f"Leg Position Grade : {legPositionGrade}")
-
-                print("Need to calculate score here and send pictures of posture to database")
-
 
             success, frame = cap.read()
             if not success:
-                print("Error: Frame not available. Video has finished or is corrupt")
+                print("Error: Frame not available")
                 break
 
-            # Convert the BGR image to RGB for mediapipe cuz it cv2 uses BGR
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-            # Process the image and detect the pose
             results = pose.process(frame_rgb)
-
-            # Draw the pose annotations on the frame.
             mp_drawing.draw_landmarks(
-                frame,
-                results.pose_landmarks,
-                mp_pose.POSE_CONNECTIONS,
+                frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS,
                 landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
 
+            if results.pose_landmarks:
+                angles = get_pose_estimation(frame, pose)
+                if angles:
+                    sitting_posture_angle, neck_posture_angle, leg_position_angle = angles
+                    # Drawing angles on the frame
+                    # cv2.putText(frame, f'Sitting Posture: {sitting_posture_angle:.2f}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 0), 2, cv2.LINE_AA)
+                    # cv2.putText(frame, f'Neck Posture: {neck_posture_angle:.2f}', (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 0), 2, cv2.LINE_AA)
 
+                    cv2.putText(frame, f'Leg Position: {leg_position_angle:.2f}', (10, 120), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 0), 2, cv2.LINE_AA)
 
-        # If no end cases run, then perform calculations
-            # Display the frame. Might delete this later (just for debugging)
+            # Write the frame into the file 'output.mp4'
+            out.write(frame)
+
             cv2.imshow('Video Stream', frame)
 
-            sitting_posture_angle, neck_posture_angle, shoulder_alignment_angle, leg_position_angle = get_pose_estimation(frame,pose)
-            
-            # if holding_posture_angle > 120:
-            #     print('bruh')
-            # print(f"Sitting Posture : {sitting_posture_angle}")
-            # print(f"Holding Posture : {holding_posture_angle}")
-            # print(f"Shoulder Algin : {shoulder_alignment_angle}")
-            # print(f"Leg Position : {leg_position_angle}")
-
-            sittingPostureGrade += gradePostureForEachFrame(sitting_posture_angle, sittingPostureDict)
-            neckPostureGrade += gradePostureForEachFrame(neck_posture_angle, holdingPostureDict)
-            legPositionGrade += gradePostureForEachFrame(leg_position_angle, legPositionDict)
-
-            neckArray.append(neck_posture_angle)
-            legArray.append(leg_position_angle)
-
-            
-            # TODO: Give Feedback
-
-            if sitting_posture_angle > 115:
-                print("Bring your feet closer to the chair. Feet are too far in front of you")
-
-            
-
     cap.release()
+    out.release()  # Close the video file
     cv2.destroyAllWindows()
+
+
 
 def calculate_angle(a, b, c):
     a = np.array(a)  # First point
@@ -159,11 +101,6 @@ def get_pose_estimation(image, pose):
         [landmarks[mp_pose.PoseLandmark.LEFT_HIP].x, landmarks[mp_pose.PoseLandmark.LEFT_HIP].y]
     )
 
-    shoulder_alignment = calculate_angle(
-        [landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER].x, landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER].y],
-        [landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER].x, landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER].y],
-        [landmarks[mp_pose.PoseLandmark.LEFT_HIP].x, landmarks[mp_pose.PoseLandmark.LEFT_HIP].y]
-    )
 
     leg_position = calculate_angle(
         [landmarks[mp_pose.PoseLandmark.LEFT_HIP].x, landmarks[mp_pose.PoseLandmark.LEFT_HIP].y],
@@ -173,7 +110,7 @@ def get_pose_estimation(image, pose):
 
     
 
-    return sitting_posture, neck_posture, shoulder_alignment, leg_position
+    return sitting_posture, neck_posture, leg_position
 
 
 # ChatGPT generated
@@ -184,25 +121,25 @@ def get_pose_estimation(image, pose):
 
 sittingPostureDict = {
 
-    (90, 110): 100,
+    (90, 100): 100,
 
 
     (85, 89): 90,
-    (80, 84): 85,
-    (75, 79): 80,
-    (70, 74): 75,
-    (65, 69): 70,
-    (60, 64): 65,
-    (0, 59): 60,
+    (80, 84): 80,
+    (75, 79): 70,
+    (70, 74): 60,
+    (65, 69): 50,
+    (60, 64): 40,
+    (0, 59): 0,
 
 
-    (111, 115): 90,
-    (116, 120): 85,
-    (121, 125): 80,
-    (126, 130): 75,
-    (131, 135): 70,
-    (136, 140): 65,
-    (141, 145): 60,
+    (101, 105): 90,
+    (106, 110): 80,
+    (111, 115): 70,
+    (116, 120): 60,
+    (121, 125): 50,
+    (126, 130): 40,
+    (130, 180): 0,
     (146, 180): 0 
 }
 
