@@ -77,8 +77,8 @@ def postureGrading():
                 print(f"Leg Position Grade : {legPositionGrade}")
 
                 print("Need to calculate score here and send pictures of posture to database")
-
-
+                wrapUpTesting(sittingPostureGrade, neckPostureGrade, legPositionGrade,feedbackArray)
+                
             success, frame = cap.read()
             if not success:
                 print("Error: Frame not available. Video has finished or is corrupt")
@@ -164,6 +164,7 @@ def postureGrading():
             feedbackString = None
             feedbackImage = None
 
+    print("Done with posture grading")
 
 
 
@@ -286,15 +287,17 @@ legPositionDict = {
 
 def gradePostureForEachFrame(angle, angleRangeToGrade):
 
+    if angle == None:
+        return 0
     for (low, high), grade in angleRangeToGrade.items():
         if low <= angle <= high:
             return grade
         
-    return 100
+    return 0
 
 
 
-def wrapUpTesting(sittingPostureGrade, neckPostureGrade, legPositionGrade, imageToFeedbackDict, testName):
+def wrapUpTesting(sittingPostureGrade, neckPostureGrade, legPositionGrade, feedbackArray, testName):
 
     # Calculate Final Weighted Grade
 
