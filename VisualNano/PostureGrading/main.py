@@ -39,14 +39,15 @@ def postureGrading():
     neckPostureGrade = 0
     legPositionGrade = 0
 
-    numImages = 0
+    
+    # list of feedback strings to images
+    feedbackArray : list[tuple[str : np.ndarray]] = []
 
 
     numFrames = 0
 
-    neckArray = []
-
-    legArray = []
+    # neckArray = []
+    # legArray = []
 
     with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
         while cap.isOpened():
@@ -115,14 +116,57 @@ def postureGrading():
             legPositionGrade += gradePostureForEachFrame(leg_position_angle, legPositionDict)
 
             print(legPositionGrade)
-            neckArray.append(neck_posture_angle)
-            legArray.append(leg_position_angle)
+            # neckArray.append(neck_posture_angle)
+            # legArray.append(leg_position_angle)
 
             
             # TODO: Give Feedback
+            
+            feedbackString : str = None
+            feedbackImage : np.ndarray = None
 
-            if sitting_posture_angle > 115:
-                print("Bring your feet closer to the chair. Feet are too far in front of you")
+            numFeedbackPointersPerFrame = 0
+
+            if leg_position_angle > 106:
+                numFeedbackPointersPerFrame += 1
+                feedbackString += f"{numFeedbackPointersPerFrame}. Bring your feet closer to the chair. Feet are too far in front of you. \n"
+                feedbackImage = frame
+
+            if leg_position_angle < 75:
+                numFeedbackPointersPerFrame += 1
+                feedbackString += f"{numFeedbackPointersPerFrame}. Your feet are underneath the chair. Please bring them forward. \n"
+                feedbackImage = frame
+
+
+            if neck_posture_angle < 130:
+                numFeedbackPointersPerFrame += 1
+                feedbackString += f"{numFeedbackPointersPerFrame}. You are pointed too downwards. Lift your neck and point your instrument forward (parallel to the ground). \n"
+                feedbackImage = frame
+
+            if neck_posture_angle > 160:
+                numFeedbackPointersPerFrame += 1
+                feedbackString += f"{numFeedbackPointersPerFrame}. You are pointed too upwards. Bring your neck down. \n"
+                feedbackImage = frame
+
+            if sitting_posture_angle < 80:
+                numFeedbackPointersPerFrame += 1
+                feedbackString += f"{numFeedbackPointersPerFrame}. You are too hunched forward. Sit back and try to make your back straight. \n"
+                feedbackImage = frame
+
+            if sitting_posture_angle > 110:
+                numFeedbackPointersPerFrame += 1
+                feedbackString += f"{numFeedbackPointersPerFrame}. You are too leaned back. Sit up and try to make your back straight. \n"
+                feedbackImage = frame
+
+            if feedbackString and feedbackImage:
+                feedbackArray.append((feedbackString,feedbackImage))
+            
+            feedbackString = None
+            feedbackImage = None
+
+
+
+
 
             
 
