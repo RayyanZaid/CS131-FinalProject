@@ -6,6 +6,11 @@ import mediapipe as mp
 
 import numpy as np
 
+import datetime
+
+import cloud
+import visualGlobalsFile
+
 # MediaPipe drawing utility
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
@@ -17,9 +22,47 @@ mp_pose = mp.solutions.pose
     # 2) use mediapipe to get joints
     # 3) calculate angles to keep track of posture
 
+def process_feedback(feedback_conditions, leg_position_angle, neck_posture_angle, sitting_posture_angle, frame, numFrame, fps):
+    numFeedbackPointersPerFrame = 0
+    feedbackString = ""
+    feedbackImage = None
+
+    # Iterate over each condition in the dictionary
+    for key, details in feedback_conditions.items():
+        # Check the condition and append feedback if necessary
+        moreThan3Seconds = (numFrame - details['lastFrame']) / fps > 180
+
+        if 'leg' in key and moreThan3Seconds:
+            if details['condition'](leg_position_angle) and leg_position_angle != None:
+                numFeedbackPointersPerFrame += 1
+                feedbackString += f"{numFeedbackPointersPerFrame}. {details['message']} \n"
+                feedbackImage = frame
+                feedback_conditions[key]['lastFrame'] = numFrame
+
+        elif 'neck' in key and moreThan3Seconds and neck_posture_angle != None:
+            if details['condition'](neck_posture_angle):
+                numFeedbackPointersPerFrame += 1
+                feedbackString += f"{numFeedbackPointersPerFrame}. {details['message']} \n"
+                feedbackImage = frame
+                feedback_conditions[key]['lastFrame'] = numFrame
+
+        elif 'back' in key and moreThan3Seconds and sitting_posture_angle != None:
+            if details['condition'](sitting_posture_angle):
+                numFeedbackPointersPerFrame += 1
+                feedbackString += f"{numFeedbackPointersPerFrame}. {details['message']} \n"
+                feedbackImage = frame
+                feedback_conditions[key]['lastFrame'] = numFrame
+
+    return feedbackString, feedbackImage
+
+
+
 def postureGrading():
 
     cap = cv2.VideoCapture(0)
+    
+    fps = cap.get(cv2.CAP_PROP_FPS)
+
     if not cap.isOpened():
         print("Error: Could not open video stream")
         return
@@ -48,13 +91,46 @@ def postureGrading():
 
     # neckArray = []
     # legArray = []
+    feedback_conditions = {
+    'leg_too_far': {
+        'condition': lambda angle: angle > 106,
+        'message': "Bring your feet closer to the chair. Feet are too far in front of you.",
+        'lastFrame' : -10000
+    },
+    'leg_too_close': {
+        'condition': lambda angle: angle < 75,
+        'message': "Your feet are underneath the chair. Please bring them forward.",
+        'lastFrame' : -10000,
+    },
+    'neck_too_down': {
+        'condition': lambda angle: angle < 125,
+        'message': "You are pointed too downwards. Lift your neck and point your instrument forward (parallel to the ground).",
+        'lastFrame' : -10000,
+    },
+    'neck_too_up': {
+        'condition': lambda angle: angle > 160,
+        'message': "You are pointed too upwards. Bring your neck down.",
+        'lastFrame' : -10000,
+    },
+    'back_too_hunched': {
+        'condition': lambda angle: angle < 80,
+        'message': "You are too hunched forward. Sit back and try to make your back straight.",
+        'lastFrame' : -10000,
+    },
+    'back_too_leaned_back': {
+        'condition': lambda angle: angle > 110,
+        'message': "You are too leaned back. Sit up and try to make your back straight.",
+        'lastFrame' : -10000,
+    },
+}
+    
 
     with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
         while cap.isOpened():
             
             numFrames += 1
 
-            if numFrames == 201:
+            if numFrames == 51:
                 testingFinished = True
 
             interruptionForDebugging = cv2.waitKey(1) and 0xFF == ord('q')
@@ -76,8 +152,13 @@ def postureGrading():
                 
                 print(f"Leg Position Grade : {legPositionGrade}")
 
+
                 print("Need to calculate score here and send pictures of posture to database")
-                wrapUpTesting(sittingPostureGrade, neckPostureGrade, legPositionGrade,feedbackArray)
+
+                visualGlobalsFile.testName = "testName-" + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") 
+                
+                wrapUpTesting(sittingPostureGrade, neckPostureGrade, legPositionGrade,feedbackArray,visualGlobalsFile.testName)
+                break
                 
             success, frame = cap.read()
             if not success:
@@ -121,48 +202,14 @@ def postureGrading():
 
             
             # TODO: Give Feedback
-            
-            feedbackString : str = None
-            feedbackImage : np.ndarray = None
-
-            numFeedbackPointersPerFrame = 0
-
-            if leg_position_angle > 106:
-                numFeedbackPointersPerFrame += 1
-                feedbackString += f"{numFeedbackPointersPerFrame}. Bring your feet closer to the chair. Feet are too far in front of you. \n"
-                feedbackImage = frame
-
-            if leg_position_angle < 75:
-                numFeedbackPointersPerFrame += 1
-                feedbackString += f"{numFeedbackPointersPerFrame}. Your feet are underneath the chair. Please bring them forward. \n"
-                feedbackImage = frame
 
 
-            if neck_posture_angle < 130:
-                numFeedbackPointersPerFrame += 1
-                feedbackString += f"{numFeedbackPointersPerFrame}. You are pointed too downwards. Lift your neck and point your instrument forward (parallel to the ground). \n"
-                feedbackImage = frame
+            if len(feedbackArray) < 6:
+                feedbackString , feedbackImage = process_feedback(feedback_conditions, leg_position_angle, neck_posture_angle, sitting_posture_angle, frame, numFrames, fps)
 
-            if neck_posture_angle > 160:
-                numFeedbackPointersPerFrame += 1
-                feedbackString += f"{numFeedbackPointersPerFrame}. You are pointed too upwards. Bring your neck down. \n"
-                feedbackImage = frame
+                if len(feedbackString) > 0:
+                    feedbackArray.append((feedbackString,feedbackImage))
 
-            if sitting_posture_angle < 80:
-                numFeedbackPointersPerFrame += 1
-                feedbackString += f"{numFeedbackPointersPerFrame}. You are too hunched forward. Sit back and try to make your back straight. \n"
-                feedbackImage = frame
-
-            if sitting_posture_angle > 110:
-                numFeedbackPointersPerFrame += 1
-                feedbackString += f"{numFeedbackPointersPerFrame}. You are too leaned back. Sit up and try to make your back straight. \n"
-                feedbackImage = frame
-
-            if feedbackString and feedbackImage:
-                feedbackArray.append((feedbackString,feedbackImage))
-            
-            feedbackString = None
-            feedbackImage = None
 
     print("Done with posture grading")
 
@@ -306,7 +353,7 @@ def wrapUpTesting(sittingPostureGrade, neckPostureGrade, legPositionGrade, feedb
     finalGrade = 0.4 * sittingPostureGrade + 0.35 * neckPostureGrade + 0.25 * legPositionGrade
 
     # Send Feedback and Grade to Cloud Database
-
+    cloud.store_grade_with_files(visualGlobalsFile.currentUsername, testName, finalGrade, feedbackArray)
 
 
     # Return the Grade
