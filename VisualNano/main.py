@@ -9,10 +9,10 @@ def wait_for_website_signal():
     print("Received signal from website")
 
 # Function to send a file to the client
-def send_file(socket, filepath):
+def send_file(socket, client_id, filepath):
     with open(filepath, 'rb') as f:
         file_data = f.read()
-    socket.send(file_data)
+    socket.send_multipart([client_id, file_data])
     print(f"File {filepath} sent to Aural Nano")
 
 # Set up ZMQ context and socket
@@ -39,7 +39,7 @@ while True:
 
         if message == "NEW_MUSIC":
             # Send the MIDI file to the client
-            send_file(socket, midi_filepath)
+            send_file(socket, client_id, midi_filepath)
 
         elif message == "TEST":
             # Grade posture (dummy grading for example)
