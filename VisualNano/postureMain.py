@@ -6,10 +6,9 @@ import mediapipe as mp
 
 import numpy as np
 
-import datetime
-
 import cloud
-import visualGlobalsFile
+
+import visualGlobals
 
 # MediaPipe drawing utility
 mp_drawing = mp.solutions.drawing_utils
@@ -154,10 +153,9 @@ def postureGrading():
 
 
                 print("Need to calculate score here and send pictures of posture to database")
-
-                visualGlobalsFile.testName = "testName-" + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") 
+ 
                 
-                wrapUpTesting(sittingPostureGrade, neckPostureGrade, legPositionGrade,feedbackArray,visualGlobalsFile.testName)
+                wrapUpTesting(sittingPostureGrade, neckPostureGrade, legPositionGrade,feedbackArray,visualGlobals.testName)
                 break
                 
             success, frame = cap.read()
@@ -353,12 +351,7 @@ def wrapUpTesting(sittingPostureGrade, neckPostureGrade, legPositionGrade, feedb
     finalGrade = 0.4 * sittingPostureGrade + 0.35 * neckPostureGrade + 0.25 * legPositionGrade
 
     # Send Feedback and Grade to Cloud Database
-    cloud.store_grade_with_files(visualGlobalsFile.currentUsername, testName, finalGrade, feedbackArray)
-
-
-    # Return the Grade
-
-    return finalGrade
+    cloud.store_grade_with_files("user1", testName, finalGrade, feedbackArray)
 
 if __name__ == '__main__':
     postureGrading()

@@ -5,11 +5,6 @@ import os
 import cv2
 from io import BytesIO
 
-import logging
-
-# Configure logging
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-
 keyfilename = "cs131-finalproject-musiccoach-817785d8a2c0.json"
 storage_client = storage.Client.from_service_account_json(keyfilename)
 bucket = storage_client.get_bucket('cs131-music-coach-feedback-media')
@@ -55,11 +50,7 @@ def store_grade_with_files(username, testName, postureGrade, feedbackArray):
             'name': testName,
             'postureGrade': postureGrade,
             'postureFeedbackArray': feedbackAndImages,
-            'lengthOfTest': 10
         }
-
-        # Log the data to be added
-        logging.debug("Preparing to create or update user with test data: %s", currentTestData)
 
         # Get a reference to the document for the username
         user_ref = db.collection('users').document(username)
@@ -77,8 +68,6 @@ def store_grade_with_files(username, testName, postureGrade, feedbackArray):
                 'tests': [currentTestData]
             }, merge=True)
     except Exception as e:
-        # Log the exception
-        logging.error("Error handling user document in Firestore: %s", e)
         raise e
 
 
