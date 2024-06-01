@@ -5,7 +5,10 @@ import uuid
 
 # Function to receive a file from the server
 def receive_file(socket, save_path):
-    client_id, file_data = socket.recv_multipart()
+    data = socket.recv_multipart()
+    file_data = data[0]
+
+
     with open(save_path, 'wb') as f:
         f.write(file_data)
     print(f"File received and saved to {save_path}")
