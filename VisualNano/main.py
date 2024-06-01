@@ -5,7 +5,7 @@ import os
 # Function to simulate waiting for an external signal from a website
 def wait_for_website_signal():
     print("Waiting for signal from website...")
-    time.sleep(5)  # Simulate waiting
+    time.sleep(2)  # Simulate waiting
     print("Received signal from website")
 
 # Function to send a file to the client

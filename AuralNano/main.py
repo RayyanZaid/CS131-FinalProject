@@ -1,17 +1,20 @@
 import zmq
 import time
 import os
+import uuid
 
 # Function to receive a file from the server
 def receive_file(socket, save_path):
-    file_data = socket.recv()
+    client_id, file_data = socket.recv_multipart()
     with open(save_path, 'wb') as f:
         f.write(file_data)
     print(f"File received and saved to {save_path}")
 
 # Set up ZMQ context and socket
 context = zmq.Context()
-socket = context.socket(zmq.REQ)  # REQ socket for requests
+socket = context.socket(zmq.DEALER)  # DEALER socket for more complex communication
+client_id = str(uuid.uuid4()).encode('utf-8')
+socket.identity = client_id
 socket.connect("tcp://192.168.4.45:5555")  # Connect to the server's port
 
 print("Aural Nano client started, waiting for user command...")
@@ -22,7 +25,7 @@ while True:
     
     if user_command == "NEW_MUSIC":
         # Send new music command to the server
-        socket.send_string("NEW_MUSIC")
+        socket.send_multipart([client_id, b"NEW_MUSIC"])
         # Wait for the server's response (file data)
         receive_file(socket, "received_midi_file.mid")
         
@@ -31,10 +34,10 @@ while True:
 
     elif user_command == "TEST":
         # Send test command to the server
-        socket.send_string("TEST")
+        socket.send_multipart([client_id, b"TEST"])
         # Wait for the server's response
-        message = socket.recv_string()
-        print(f"Received from server: {message}")
+        client_id, message = socket.recv_multipart()
+        print(f"Received from server: {message.decode('utf-8')}")
         
         # Simulate processing received data
         print("Grading music...")
@@ -49,10 +52,10 @@ while True:
 
     elif user_command == "SYNC":
         # Send sync signal to the server
-        socket.send_string("SYNC")
+        socket.send_multipart([client_id, b"SYNC"])
         # Wait for the server's response
-        message = socket.recv_string()
-        print(f"Received from server: {message}")
+        client_id, message = socket.recv_multipart()
+        print(f"Received from server: {message.decode('utf-8')}")
 
     else:
         print("Invalid command.")
