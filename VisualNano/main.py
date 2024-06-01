@@ -33,7 +33,10 @@ while True:
 
     while True:
         # Wait for a request from the client
-        client_id, message = socket.recv_multipart()
+        data = socket.recv_multipart()
+
+        message = data[2]
+        client_id = data[1]
         message = message.decode('utf-8')
         print(f"Received request: {message}")
 
