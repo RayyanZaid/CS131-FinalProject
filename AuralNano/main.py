@@ -32,6 +32,7 @@ print("Aural Nano client started, waiting for user command...")
 while True:
     # Simulate user command
     user_command = input("Enter command (NEW_MUSIC/TEST/PLAY: ").strip().upper()
+
     
     if user_command == "NEW_MUSIC":
         # Send new music command to the server
