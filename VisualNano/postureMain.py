@@ -141,8 +141,8 @@ def postureGrading():
             if  userInterruptedTesting:
                 print("Do not keep results of this rest")
                 break
-
-            if testingFinished:
+            
+            if visualGlobals.testDoneFlag:
                 sittingPostureGrade /= numFrames
                 neckPostureGrade /= numFrames
                 legPositionGrade /= numFrames
