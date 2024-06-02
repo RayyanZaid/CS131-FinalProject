@@ -54,7 +54,7 @@ while True:
         socket.send_multipart([client_id, b"TEST", testName.encode('utf-8')])
         
         start_time = time.time()
-        duration = 4
+        duration = 20
 
         while time.time() - start_time < duration:
             print("Grading music...")
