@@ -29,7 +29,7 @@ while True:
     # Simulate processing an image to MIDI and saving it to a file
     midi_filepath = "midi_file.mid"
     with open(midi_filepath, 'wb') as f:
-        f.write(b'MIDI_DATA')  # Dummy MIDI data
+        f.write(b'MIDI_DATA yay')  # Dummy MIDI data
 
     while True:
         # Wait for a request from the client
