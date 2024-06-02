@@ -39,7 +39,8 @@ while True:
         # Send test command to the server
         socket.send_multipart([client_id, b"TEST"])
         # Wait for the server's response
-        client_id, message = socket.recv_multipart()
+        data = socket.recv_multipart()
+        message = data[0]
         print(f"Received from server: {message.decode('utf-8')}")
         
         # Simulate processing received data
@@ -57,7 +58,8 @@ while True:
         # Send sync signal to the server
         socket.send_multipart([client_id, b"SYNC"])
         # Wait for the server's response
-        client_id, message = socket.recv_multipart()
+        data = socket.recv_multipart()
+        message = data[0]
         print(f"Received from server: {message.decode('utf-8')}")
 
     else:
