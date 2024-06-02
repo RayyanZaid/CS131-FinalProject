@@ -129,8 +129,9 @@ def postureGrading():
             
             numFrames += 1
 
-            if numFrames == 51:
-                testingFinished = True
+            # Below 2 lines are for debugging
+            # if numFrames == 51:
+            #     testingFinished = True
 
             interruptionForDebugging = cv2.waitKey(1) and 0xFF == ord('q')
 
@@ -209,7 +210,7 @@ def postureGrading():
                     feedbackArray.append((feedbackString,feedbackImage))
 
 
-    print("Done with posture grading")
+    print("Done with posture grading in postureMain.py")
 
 
 

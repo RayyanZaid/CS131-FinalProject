@@ -31,9 +31,8 @@ print("Aural Nano client started, waiting for user command...")
 
 while True:
     # Simulate user command
-    user_command = input("Enter command (NEW_MUSIC/TEST/PLAY: ").strip().upper()
+    user_command = input("Enter command (NEW_MUSIC/TEST/PLAY): ").strip().upper()
 
-    
     if user_command == "NEW_MUSIC":
         # Send new music command to the server
         socket.send_multipart([client_id, b"NEW_MUSIC"])
@@ -64,12 +63,10 @@ while True:
         print(f"Saving Music Test data under test name : {testName}")
         print("Music graded.")
 
-        data = socket.recv_multipart()
-        message = data[0]
-        print(f"Received from server: {message.decode('utf-8')}")
-        
-        
-        
+        # Notify Visual Nano that the test is done
+        socket.send_multipart([client_id, b"TEST_DONE"])
+        print("Sent TEST_DONE signal to Visual Nano")
+
     elif user_command == "PLAY":
         # Simulate playing music
         print("Playing music measures 3-5...")

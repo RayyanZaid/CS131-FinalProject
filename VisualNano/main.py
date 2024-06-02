@@ -1,7 +1,9 @@
 import zmq
 import time
 import os
+
 import visualGlobals
+import postureMain
 
 # Function to simulate waiting for an external signal from a website
 def wait_for_website_signal():
@@ -63,21 +65,41 @@ while True:
         # Grade posture (dummy grading for example)
         visualGlobals.testName = data[3].decode('utf-8')
         print(f"Received testname: {visualGlobals.testName} from Aural Nano. Will perform test and store results in database.")
+         
+
+
         
-        start_time = time.time()
-        duration = 3 
+        visualGlobals.testDoneFlag = False
 
+        # Start the posture grading in a separate thread or process
+        import threading
+        grading_thread = threading.Thread(target=postureMain.postureGrading)
+        grading_thread.start()
+        
+        # Wait for Aural Nano to signal that the test is done
+        while not visualGlobals.testDoneFlag:
+            try:
+                data = socket.recv_multipart(flags=zmq.NOBLOCK)
+                message = data[2].decode('utf-8')
+                if message == "TEST_DONE":
+                    print("Received TEST_DONE signal from Aural Nano.")
+                    print("Setting test done flag = True")
+                    visualGlobals.testDoneFlag = True
+            except zmq.Again:
+                # No message received yet
+                time.sleep(0.1)
 
-        # Call postureMain function instead
-        while time.time() - start_time < duration:
-            print("Grading posture...")
-            time.sleep(0.25) 
+        grading_thread.join()
 
         print(f"Saving Posture Test data under test name : {visualGlobals.testName}")
         print("Posture Graded")
 
-        test_done_message = "Test Done on Visual!"
-        
-        # Send posture grade to the client
-        socket.send_multipart([client_id, test_done_message.encode('utf-8')])
-        print("Visual done signal sent to Aural Nano")
+        # Wait for Aural Nano to signal that the test is done
+        data = socket.recv_multipart()
+
+        message = data[2].decode('utf-8')
+
+        if message == "TEST_DONE":
+            print("Received TEST_DONE signal from Aural Nano.")
+            print("Setting test done flag = True")
+            visualGlobals.testDoneFlag = True
