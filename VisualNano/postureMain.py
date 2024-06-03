@@ -188,14 +188,14 @@ def postureGrading():
             # if holding_posture_angle > 120:
             #     print('bruh')
             # print(f"Sitting Posture : {sitting_posture_angle}")
-            # print(f"Holding Posture : {holding_posture_angle}")
+            # print(f"Holding Posture : {neck_posture_angle}")
             # print(f"Leg Position : {leg_position_angle}")
 
             sittingPostureGrade += gradePostureForEachFrame(sitting_posture_angle, sittingPostureDict)
             neckPostureGrade += gradePostureForEachFrame(neck_posture_angle, neckPostureDict)
             legPositionGrade += gradePostureForEachFrame(leg_position_angle, legPositionDict)
 
-            print(legPositionGrade)
+            # print(legPositionGrade)
             # neckArray.append(neck_posture_angle)
             # legArray.append(leg_position_angle)
 
