@@ -5,13 +5,14 @@ import os
 import visualGlobals
 import postureMain
 
+from SheetVision import main
+
 # Function to simulate waiting for an external signal from a website
 def wait_for_website_signal():
     print("Waiting for signal from website...")
     time.sleep(2)  # Simulate waiting
 
     visualGlobals.sheetMusicName = input("Sheet Music Name: ")
-    visualGlobals.imagePath = input("Image Path: ")
     print("Received signal from website")
 
 # Function to send a file to the client
@@ -47,10 +48,18 @@ while True:
         # 2) Wait for the user to press "Submit" on the website
         wait_for_website_signal()
 
-        # 3) Run SheetVision to convert visualGlobals.imagePath to MIDI file        
+        visualGlobals.imagePath = "VisualNano/TwinkleImage.png"
+
+        # 3) Run SheetVision to convert visualGlobals.imagePath to MIDI file 
+   
         # Simulate processing an image to MIDI and saving it to a file
-        print(f"Simulation of SheetVision converting {visualGlobals.imagePath} to a MIDI file")
-        time.sleep(1)
+        # print(f"Simulation of SheetVision converting {visualGlobals.imagePath} to a MIDI file")
+        # time.sleep(1)
+
+        # Instead of simulating, call SheetVision
+
+        main.sheetvisionMain(visualGlobals.imagePath)
+        
 
         file_contents = b"This is midi data"  # Predefined MIDI data as bytes
         try:
