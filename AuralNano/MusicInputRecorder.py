@@ -62,7 +62,7 @@ def record_music(bpm, measure_count, path, vol):
     pitch_avg = 0
 
     bps = bpm/60
-    song_duration = (measure_count * 4) / bps
+    song_duration = (measure_count * 4) / bps 
 
     result_list = []
 
