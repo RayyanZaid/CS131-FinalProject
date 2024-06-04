@@ -1,6 +1,5 @@
 import time
 import simpleaudio as sa
-import numpy as np
 
 from MusicInputRecorder import record_music
 from MidiToListConverter import read_midi
@@ -13,16 +12,11 @@ vol = 500
 bps = bpm / 60  # beats per second
 count = 4
 
-# Generate a simple beep sound for the metronome
+# Load the beep sound
+beep_wave = sa.WaveObject.from_wave_file("beep.wav")
+
 def play_metronome():
-    frequency = 440  # Frequency in Hertz
-    fs = 44100  # Sampling rate
-    duration = 0.2  # Duration in seconds
-    t = np.linspace(0, duration, int(fs * duration), False)
-    wave = 0.5 * np.sin(2 * np.pi * frequency * t)
-    audio = np.hstack([wave, wave])
-    audio = (audio * 32767).astype(np.int16)
-    play_obj = sa.play_buffer(audio, 1, 2, fs)
+    play_obj = beep_wave.play()
     play_obj.wait_done()
 
 def testMusic():
@@ -48,10 +42,5 @@ def testMusic():
 
     print(midiFileResult)
 
-    print("Compare results for a grade")
-
-    return 100
-
-
-if __name__ == '__main__':
-    testMusic()
+# Call the function to test it
+testMusic()

@@ -22,6 +22,7 @@ notes = {
     3729.31: "A#7/Bb7", 3951.07: "B7", 4186.01: "C8", 4434.92: "C#8/Db8", 4698.64: "D8", 4978.03: "D#8/Eb8"
 }
 
+
 # Function to find the closest note
 def find_closest_note(frequency):
     closest_note = min(notes.keys(), key=lambda note: abs(note - frequency))
@@ -121,3 +122,5 @@ def record_music(bpm, measure_count, path, vol):
     p.terminate()
 
     return result_list
+
+
