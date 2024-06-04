@@ -26,7 +26,7 @@ context = zmq.Context()
 socket = context.socket(zmq.DEALER)  # DEALER socket for more complex communication
 client_id = str(uuid.uuid4()).encode('utf-8')
 socket.identity = client_id
-socket.connect("tcp://192.168.4.45:5555")  # Connect to the server's port
+socket.connect("tcp://192.168.7.123:5555")  # Connect to the server's port
 
 print("Aural Nano client started, waiting for user command...")
 
@@ -66,7 +66,7 @@ while True:
         grade = testMusic()
         
         print(f"Saving Music Test data under test name : {testName}")
-        print("Music graded.")
+        print(f"Music graded: User1 got a {grade}%.")
 
         # Notify Visual Nano that the test is done
         socket.send_multipart([client_id, b"TEST_DONE"])

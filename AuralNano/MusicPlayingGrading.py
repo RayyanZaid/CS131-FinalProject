@@ -4,7 +4,7 @@ from sys import platform
 from MusicInputRecorder import record_music
 from MidiToListConverter import read_midi
 
-path = r'C:\Users\rayya\Desktop\CS131-FinalProject-Music-Coach\yes.txt'
+path = r'test.txt'
 bpm = 100
 vol = 500
 
@@ -98,7 +98,8 @@ def testMusic():
     # bpm of song, total number measures, path is absolute path of output file, volume is sound gate
     audio_result = record_music(bpm, measures, path, vol)
 
-    print(audio_result)
+    print(f"Sheet Music Array: {sheetmusicResult}")
+    print(f"Audio Array: {audio_result}")
 
     # Now grade the music by comparing it to a MIDI file
 
