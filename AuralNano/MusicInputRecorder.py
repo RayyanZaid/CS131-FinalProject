@@ -111,7 +111,8 @@ def record_music(bpm, measure_count, path, vol):
             print(pitch_list)
             pitch_avg = sum(pitch_list) / len(pitch_list)
             file.write(f"{prev_note}    {pitch_avg}\n")
-            result_list.append([prev_note, pitch_avg])
+            duration = time.time() - start
+            result_list.append([prev_note, pitch_avg, duration])
     # Close stream
     stream.stop_stream()
     stream.close()
