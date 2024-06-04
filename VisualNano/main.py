@@ -1,6 +1,7 @@
 import zmq
 import time
 import os
+import requests
 
 import visualGlobals
 import postureMain
@@ -8,11 +9,31 @@ import postureMain
 from SheetVision import main
 from midiFogLayer import transposeToBFlat, remove_last_note_events
 
-# Function to simulate waiting for an external signal from a website
+# Function to wait for an external signal from the website and fetch image
 def wait_for_website_signal():
     print("Waiting for signal from website...")
-    time.sleep(2)  # Simulate waiting
-    visualGlobals.sheetMusicName = input("Sheet Music File Name: ")
+    while len(visualGlobals.sheetMusicName) == 0 and len(visualGlobals.imagePath) == 0:
+        try:
+            response = requests.get("http://192.168.4.45:5000/check")
+            if response.status_code == 200:
+                data = response.json()
+                visualGlobals.sheetMusicName = data.get("title")
+                visualGlobals.imagePath = data.get("imagePath")
+                print(f"Received title: {visualGlobals.sheetMusicName}, image path: {visualGlobals.imagePath}")
+
+                # Fetch the image
+                image_response = requests.get(f"http://192.168.4.45:5000/get_image", params={"imagePath": visualGlobals.imagePath})
+                if image_response.status_code == 200:
+                    with open(visualGlobals.imagePath, 'wb') as f:
+                        f.write(image_response.content)
+                    print(f"Image saved to {visualGlobals.imagePath}")
+                else:
+                    print("Failed to fetch image from server")
+            else:
+                print("No data yet. Waiting...")
+        except Exception as e:
+            print(f"Error fetching data: {e}")
+        time.sleep(2)  # Poll every 2 seconds
     print("Received signal from website")
 
 # Function to send a file to the client
@@ -41,9 +62,11 @@ while True:
     print(f"Received request: {message}")
 
     if message == "NEW_MUSIC":
+
+        visualGlobals.sheetMusicName = ""
+        visualGlobals.imagePath = ""
         print("Tell user to enter image and name on website")
         wait_for_website_signal()
-        visualGlobals.imagePath = f"{visualGlobals.sheetMusicName}"
 
         # Run SheetVision to convert visualGlobals.imagePath to MIDI file 
         untransposed_midi_filepath = main.sheetvisionMain(visualGlobals.imagePath)
@@ -80,4 +103,3 @@ while True:
         grading_thread.join()
         print(f"Saving Posture Test data under test name : {visualGlobals.testName}")
         print("Posture Graded")
-

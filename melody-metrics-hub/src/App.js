@@ -1,52 +1,28 @@
-import React, { useState } from "react";
+import React from "react";
 import NavBar from "./components/NavBar";
 import StartPracticing from "./components/StartPracticing";
 import Confirmation from "./components/Confirmation";
-import ImageDisplay from "./components/ImageDisplay";
 import TestCards from "./components/TestCards";
 import CardDetail from "./components/CardDetail";
 
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+
+// Your existing routes and server setup
+
 function App() {
-  const [screen, setScreen] = useState("start");
-  const [formData, setFormData] = useState(null);
-  const [selectedCard, setSelectedCard] = useState(null);
-
-  const handleFormSubmit = (data) => {
-    setFormData(data);
-    setScreen("confirmation");
-  };
-
-  const handleCardClick = (card) => {
-    setSelectedCard(card);
-    setScreen("cardDetail");
-  };
-
-  const handleNavigate = (targetScreen) => {
-    setScreen(targetScreen);
-  };
-
   return (
-    <div className="App">
-      <NavBar onNavigate={handleNavigate} />
-      {screen === "start" && <StartPracticing onSubmit={handleFormSubmit} />}
-      {screen === "confirmation" && (
-        <Confirmation
-          data={formData}
-          onConfirm={() => setScreen("imageDisplay")}
-        />
-      )}
-      {screen === "imageDisplay" && (
-        <ImageDisplay
-          data={formData}
-          onBack={() => setScreen("start")}
-          onGoToTestCards={() => setScreen("testCards")}
-        />
-      )}
-      {screen === "testCards" && <TestCards onCardClick={handleCardClick} />}
-      {screen === "cardDetail" && (
-        <CardDetail card={selectedCard} onBack={() => setScreen("testCards")} />
-      )}
-    </div>
+    <Router>
+      <div className="App">
+        <NavBar />
+        <Routes>
+          <Route path="/" element={<StartPracticing />} />
+          <Route path="/confirmation" element={<Confirmation />} />
+
+          <Route path="/testCards" element={<TestCards />} />
+          <Route path="/cardDetail" element={<CardDetail />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 

@@ -1,6 +1,8 @@
+// NavBar.js
 import React from "react";
+import { Link } from "react-router-dom";
 
-function NavBar({ onNavigate }) {
+function NavBar() {
   return (
     <nav
       style={{
@@ -11,8 +13,10 @@ function NavBar({ onNavigate }) {
       }}
     >
       <div>
-        <button onClick={() => onNavigate("start")}>Start Practicing</button>
-        <button onClick={() => onNavigate("testCards")}>Test Cards</button>
+        <Link to="/">Start Practicing</Link>
+        <a href="/testCards" target="_blank" rel="noopener noreferrer">
+          Test Cards
+        </a>
       </div>
     </nav>
   );
