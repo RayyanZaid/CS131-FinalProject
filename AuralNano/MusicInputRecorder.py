@@ -93,8 +93,10 @@ def record_music(bpm, measure_count, path, vol):
                             print(pitch_list)
                             pitch_avg = sum(pitch_list) / len(pitch_list)
                             file.write(f"{prev_note}    {pitch_avg}\n")
-                            duration = time.time() - start
-                            result_list.append([prev_note, pitch_avg, duration])
+                            beat_duration = (time.time() - start) * bps
+                            beat_count = int(round(beat_duration))
+                            result_list.append([prev_note, pitch_avg, beat_count])
+
                             pitch_list = []
                         prev_note = cur_note
                         start = time.time()

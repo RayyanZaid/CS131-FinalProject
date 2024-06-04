@@ -1,9 +1,10 @@
 from MusicInputRecorder import record_music
+from MidiToListConverter import read_midi
 import time
 
-path = r'C:\Users\Work\Desktop\131\Project\CS131-FinalProject-Music-Coach\AuralNano\mic_music.txt'
-bpm = 120
-measures = 1
+path = r'C:\Users\rayya\Desktop\CS131-FinalProject-Music-Coach\yes.txt'
+bpm = 100
+measures = 4
 vol = 500
 
 start = time.time()
@@ -25,3 +26,14 @@ while True:
 result = record_music(bpm, measures, path, vol)
 
 print(result)
+
+
+
+# Now grade the music by comparing it to a MIDI file
+
+
+# 1) Convert MIDI file to list format (like result on line 25)
+
+midiFileResult = read_midi("received_midi_file.mid", bpm)
+
+print(midiFileResult)

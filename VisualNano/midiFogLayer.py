@@ -62,4 +62,5 @@ def remove_last_note_events(midi_file_path):
 
 
 if __name__ == '__main__':
-    transposeToBFlat("EsAndGs.mid")
+    transposeToBFlat(r"C:\Users\rayya\Desktop\CS131-FinalProject-Music-Coach\AuralNano\EsAndGsWeb.mid")
+    remove_last_note_events(r"C:\Users\rayya\Desktop\CS131-FinalProject-Music-Coach\AuralNano\EsAndGsWeb.mid")
