@@ -42,5 +42,5 @@ def testMusic():
 
     print(midiFileResult)
 
-# Call the function to test it
-testMusic()
+if __name__ == "__main__":
+    testMusic()
