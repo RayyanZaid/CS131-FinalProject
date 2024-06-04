@@ -7,6 +7,7 @@ import datetime
 
 import auralGlobals
 
+from MusicPlayingGrading import testMusic
 # Function to receive a file from the server
 def receive_file_and_string(socket, save_path):
 
@@ -53,12 +54,16 @@ while True:
 
         socket.send_multipart([client_id, b"TEST", testName.encode('utf-8')])
         
-        start_time = time.time()
-        duration = 20
 
-        while time.time() - start_time < duration:
-            print("Grading music...")
-            time.sleep(0.25)
+        # Call Wiiliam's stuff here
+        # start_time = time.time()
+        # duration = 20
+
+        # while time.time() - start_time < duration:
+        #     print("Grading music...")
+        #     time.sleep(0.25)
+
+        grade = testMusic()
         
         print(f"Saving Music Test data under test name : {testName}")
         print("Music graded.")
