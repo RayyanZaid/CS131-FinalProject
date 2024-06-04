@@ -1,15 +1,39 @@
 import zmq
 import time
 import os
-import visualGlobals
+import requests
 
-# Function to simulate waiting for an external signal from a website
+import visualGlobals
+import postureMain
+
+from SheetVision import main
+from midiFogLayer import transposeToBFlat, remove_last_note_events
+
+# Function to wait for an external signal from the website and fetch image
 def wait_for_website_signal():
     print("Waiting for signal from website...")
-    time.sleep(2)  # Simulate waiting
+    while len(visualGlobals.sheetMusicName) == 0 and len(visualGlobals.imagePath) == 0:
+        try:
+            response = requests.get("http://192.168.4.45:5000/check")
+            if response.status_code == 200:
+                data = response.json()
+                visualGlobals.sheetMusicName = data.get("title")
+                visualGlobals.imagePath = data.get("imagePath")
+                print(f"Received title: {visualGlobals.sheetMusicName}, image path: {visualGlobals.imagePath}")
 
-    visualGlobals.sheetMusicName = input("Sheet Music Name: ")
-    visualGlobals.imagePath = input("Image Path: ")
+                # Fetch the image
+                image_response = requests.get(f"http://192.168.4.45:5000/get_image", params={"imagePath": visualGlobals.imagePath})
+                if image_response.status_code == 200:
+                    with open(visualGlobals.imagePath, 'wb') as f:
+                        f.write(image_response.content)
+                    print(f"Image saved to {visualGlobals.imagePath}")
+                else:
+                    print("Failed to fetch image from server")
+            else:
+                print("No data yet. Waiting...")
+        except Exception as e:
+            print(f"Error fetching data: {e}")
+        time.sleep(2)  # Poll every 2 seconds
     print("Received signal from website")
 
 # Function to send a file to the client
@@ -37,47 +61,45 @@ while True:
     message = data[2].decode('utf-8')
     print(f"Received request: {message}")
 
-    midi_filepath = "midi_file.mid"
-
     if message == "NEW_MUSIC":
-        # 1) Tell user to enter image and name on website
+
+        visualGlobals.sheetMusicName = ""
+        visualGlobals.imagePath = ""
         print("Tell user to enter image and name on website")
-        # 2) Wait for the user to press "Submit" on the website
         wait_for_website_signal()
 
-        # 3) Run SheetVision to convert visualGlobals.imagePath to MIDI file        
-        # Simulate processing an image to MIDI and saving it to a file
-        print(f"Simulation of SheetVision converting {visualGlobals.imagePath} to a MIDI file")
-        time.sleep(1)
+        # Run SheetVision to convert visualGlobals.imagePath to MIDI file 
+        untransposed_midi_filepath = main.sheetvisionMain(visualGlobals.imagePath)
+        transposed_midi_filepath = transposeToBFlat(untransposed_midi_filepath)
+        finalized_midi_filepath = remove_last_note_events(transposed_midi_filepath)
 
-        file_contents = b"This is midi data"  # Predefined MIDI data as bytes
+        print(f"Transposed MIDI file path: {transposed_midi_filepath}")
+
         try:
-            with open(midi_filepath, 'wb') as f:
-                f.write(file_contents)
-                print(f"MIDI data written to {midi_filepath}")
-            send_file_and_string(socket, client_id, midi_filepath, visualGlobals.sheetMusicName)
+            send_file_and_string(socket, client_id, transposed_midi_filepath, visualGlobals.sheetMusicName)
+            os.remove(finalized_midi_filepath)
         except Exception as e:
-            print(f"Error writing MIDI file: {e}")
+            print(f"Error with MIDI file: {e}")
 
     elif message == "TEST":
-        # Grade posture (dummy grading for example)
         visualGlobals.testName = data[3].decode('utf-8')
-        print(f"Received testname: {visualGlobals.testName} from Aural Nano. Will perform test and store results in database.")
+        print(f"Received test name: {visualGlobals.testName} from Aural Nano. Will perform test and store results in database.")
         
-        start_time = time.time()
-        duration = 3 
+        visualGlobals.testDoneFlag = False
+        import threading
+        grading_thread = threading.Thread(target=postureMain.postureGrading)
+        grading_thread.start()
+        
+        while not visualGlobals.testDoneFlag:
+            try:
+                data = socket.recv_multipart(flags=zmq.NOBLOCK)
+                message = data[2].decode('utf-8')
+                if message == "TEST_DONE":
+                    print("Received TEST_DONE signal from Aural Nano.")
+                    visualGlobals.testDoneFlag = True
+            except zmq.Again:
+                time.sleep(0.1)
 
-
-        # Call postureMain function instead
-        while time.time() - start_time < duration:
-            print("Grading posture...")
-            time.sleep(0.25) 
-
+        grading_thread.join()
         print(f"Saving Posture Test data under test name : {visualGlobals.testName}")
         print("Posture Graded")
-
-        test_done_message = "Test Done on Visual!"
-        
-        # Send posture grade to the client
-        socket.send_multipart([client_id, test_done_message.encode('utf-8')])
-        print("Visual done signal sent to Aural Nano")

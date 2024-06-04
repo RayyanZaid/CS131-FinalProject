@@ -6,3 +6,4 @@ import datetime
 testName = ""
 sheetMusicName = ""
 imagePath = ""
+testDoneFlag = False

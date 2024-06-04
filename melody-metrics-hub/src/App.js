@@ -1,24 +1,28 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import NavBar from "./components/NavBar";
+import StartPracticing from "./components/StartPracticing";
+import Confirmation from "./components/Confirmation";
+import TestCards from "./components/TestCards";
+import CardDetail from "./components/CardDetail";
+
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+
+// Your existing routes and server setup
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <div className="App">
+        <NavBar />
+        <Routes>
+          <Route path="/" element={<StartPracticing />} />
+          <Route path="/confirmation" element={<Confirmation />} />
+
+          <Route path="/testCards" element={<TestCards />} />
+          <Route path="/cardDetail" element={<CardDetail />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
