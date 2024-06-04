@@ -240,7 +240,7 @@ def sheetvisionMain(img_file):
             elif note_type == "2":
                 duration = 2
             elif note_type == "4":
-                duration = 1
+                duration = 0.5
             pitch = note.pitch
             midi.addNote(track,channel,pitch,time,duration,volume)
             time += duration
@@ -262,4 +262,4 @@ def sheetvisionMain(img_file):
 
 
 if __name__ == '__main__':
-    sheetvisionMain(r"C:\Users\rayya\Desktop\CS131-FinalProject-Music-Coach\VisualNano\images\EsAndGsWeb.png")
+    sheetvisionMain(r"C:\Users\rayya\Desktop\CS131-FinalProject-Music-Coach\VisualNano\Drill3.png")

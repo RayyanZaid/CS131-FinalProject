@@ -1,7 +1,7 @@
 import mido
 
 # Open the MIDI file
-mid = mido.MidiFile('../EsAndGs.mid')
+mid = mido.MidiFile('transposed_to_Bb.mid')
 
 # Print the file's metadata
 print(f'Number of tracks: {len(mid.tracks)}')
