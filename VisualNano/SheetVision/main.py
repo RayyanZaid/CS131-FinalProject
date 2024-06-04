@@ -256,7 +256,7 @@ def sheetvisionMain(img_file):
     binfile = open(f"{midi_filename}", 'wb')
     midi.writeFile(binfile)
     binfile.close()
-    openfile(f'{midi_filename}.mid')
+    # openfile(f'{midi_filename}.mid')
 
     return midi_filename
 

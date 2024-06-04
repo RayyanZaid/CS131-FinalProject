@@ -9,6 +9,7 @@ import postureMain
 from SheetVision import main
 from midiFogLayer import transposeToBFlat, remove_last_note_events
 
+
 # Function to wait for an external signal from the website and fetch image
 def wait_for_website_signal():
     print("Waiting for signal from website...")
@@ -103,3 +104,4 @@ while True:
         grading_thread.join()
         print(f"Saving Posture Test data under test name : {visualGlobals.testName}")
         print("Posture Graded")
+
