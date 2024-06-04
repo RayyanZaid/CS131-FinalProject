@@ -8,6 +8,9 @@ import datetime
 import auralGlobals
 
 from MusicPlayingGrading import testMusic
+
+from playMidiFile import play_midi
+
 # Function to receive a file from the server
 def receive_file_and_string(socket, save_path):
 
@@ -26,7 +29,7 @@ context = zmq.Context()
 socket = context.socket(zmq.DEALER)  # DEALER socket for more complex communication
 client_id = str(uuid.uuid4()).encode('utf-8')
 socket.identity = client_id
-socket.connect("tcp://192.168.7.123:5555")  # Connect to the server's port
+socket.connect("tcp://192.168.7.191:5555")  # Connect to the server's port
 
 print("Aural Nano client started, waiting for user command...")
 
@@ -38,6 +41,8 @@ while True:
         # Send new music command to the server
         socket.send_multipart([client_id, b"NEW_MUSIC"])
         # Wait for the server's response (file data)
+
+        print("Waiting say this with voice")
         receive_file_and_string(socket, "received_midi_file.mid")
         
         # Simulate waiting for user command for the next step
@@ -73,9 +78,11 @@ while True:
         print("Sent TEST_DONE signal to Visual Nano")
 
     elif user_command == "PLAY":
-        # Simulate playing music
-        print("Playing music measures 3-5...")
-        time.sleep(3)
+        
+        
+        print("Will play the music now")
+
+        play_midi('received_midi_file.mid')
         print("Music played.")
 
     else:

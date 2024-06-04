@@ -2,6 +2,19 @@ import pyaudio
 import numpy as np
 import aubio
 import time
+import pygame
+import threading
+
+# Initialize Pygame mixer
+pygame.mixer.init()
+beep_sound = pygame.mixer.Sound('beep.wav')
+
+# Function to play metronome
+def play_metronome(bpm, stop_event):
+    beat_duration = 60 / bpm
+    while not stop_event.is_set():
+        beep_sound.play()
+        time.sleep(beat_duration)
 
 # Frequency to Note Mapping
 notes = {
@@ -22,15 +35,11 @@ notes = {
     3729.31: "A#7/Bb7", 3951.07: "B7", 4186.01: "C8", 4434.92: "C#8/Db8", 4698.64: "D8", 4978.03: "D#8/Eb8"
 }
 
-
-# Function to find the closest note
 def find_closest_note(frequency):
     closest_note = min(notes.keys(), key=lambda note: abs(note - frequency))
     return notes[closest_note], closest_note
 
-# Function to calculate the RMS of the audio for volume threshold
 def calculate_rms(frame):
-    """ Calculate Root Mean Square of audio frame for volume """
     count = len(frame)
     sum_squares = 0.0
     for sample in frame:
@@ -38,23 +47,23 @@ def calculate_rms(frame):
         sum_squares += n * n
     return np.sqrt(sum_squares / count)
 
-#bpm of song, total number measures, path is absolute path of output file, volume is sound gate
 def record_music(bpm, measure_count, path, vol):
-    # Initialize pyaudio
+    bps = bpm / 60
+    song_duration = (measure_count * 4) / bps
+    
+    # Use a threading event to control the metronome
+    stop_event = threading.Event()
+    metronome_thread = threading.Thread(target=play_metronome, args=(bpm, stop_event))
+    metronome_thread.start()
+
     p = pyaudio.PyAudio()
-
-    # Open stream
-    stream = p.open(format=pyaudio.paFloat32,
-                    channels=1,
-                    rate=44100,
-                    input=True,
-                    frames_per_buffer=1024)
-
-    # Aubio's pitch detection
+    stream = p.open(format=pyaudio.paFloat32, channels=1, rate=44100, input=True, frames_per_buffer=1024)
     p_detection = aubio.pitch("default", 2048, 1024, 44100)
     p_detection.set_unit("Hz")
     p_detection.set_silence(-40)
 
+    print("Recording...")
+    
     prev_note = 0
     same_note_cnt = 0
 
@@ -66,61 +75,69 @@ def record_music(bpm, measure_count, path, vol):
 
     result_list = []
 
-    song_start = time.time()
+    start_time = time.time()
 
     start = 0
-    with open(path, 'w') as file:
-        print("recording")
-        start = time.time()
-        while time.time() - song_start <= song_duration:
-            try:
-                data = stream.read(1024)
-                samples = np.fromstring(data, dtype=aubio.float_type)
-                pitch = p_detection(samples)[0]
-                volume = calculate_rms(samples)
 
-                # Check if the volume is above a certain threshold
-                if volume > vol:  # Adjust this threshold based on your needs
-                    cur_note, note_freq = find_closest_note(pitch)
-                    if cur_note == prev_note:
-                        same_note_cnt += 1
-                        if same_note_cnt < 3:
-                            pass
-                        else:
-                            pitch_list.append(pitch)
-                    else: #new note
-                        same_note_cnt = 0
-                        if len(pitch_list) > 0:
-                            print(pitch_list)
-                            pitch_avg = sum(pitch_list) / len(pitch_list)
-                            file.write(f"{prev_note}    {pitch_avg}\n")
-                            beat_duration = (time.time() - start) * bps
-                            beat_count = int(round(beat_duration))
-                            result_list.append([prev_note, pitch_avg, beat_count])
-
-                            pitch_list = []
-                        prev_note = cur_note
-                        start = time.time()
-                    print(f"Detected pitch: {pitch} Hz (Closest note: {cur_note} {note_freq} Hz)")
-                    # file.write(f"Detected pitch: {pitch} Hz (Closest note: {cur_note} {note_freq} Hz)\n")
-                else:
-                    # print("Below volume threshold.")
+    while time.time() - start_time <= song_duration:
+        data = stream.read(1024, exception_on_overflow=False)
+        samples = np.frombuffer(data, dtype=aubio.float_type)
+        pitch = p_detection(samples)[0]
+        volume = calculate_rms(samples)
+        # Check if the volume is above a certain threshold
+        if volume > vol:  # Adjust this threshold based on your needs
+            cur_note, note_freq = find_closest_note(pitch)
+            if cur_note == prev_note:
+                same_note_cnt += 1
+                if same_note_cnt < 3:
                     pass
-            except KeyboardInterrupt:
-                print("Exiting...")
-                break
-        
+                else:
+                    pitch_list.append(pitch)
+            else: #new note
+                same_note_cnt = 0
+                if len(pitch_list) > 0:
+                    print(pitch_list)
+                    pitch_avg = sum(pitch_list) / len(pitch_list)
+                    # file.write(f"{prev_note}    {pitch_avg}\n")
+                    beat_duration = (time.time() - start) * bps
+                    beat_count = int(round(beat_duration))
+                    result_list.append([prev_note, pitch_avg, beat_count])
+
+                    pitch_list = []
+                prev_note = cur_note
+                start = time.time()
+            print(f"Detected pitch: {pitch} Hz (Closest note: {cur_note} {note_freq} Hz)")
+            # file.write(f"Detected pitch: {pitch} Hz (Closest note: {cur_note} {note_freq} Hz)\n")
+        else:
+            print("Below volume threshold.")
+            pass
+
         if same_note_cnt >= 3 and len(pitch_list) > 0:
             print(pitch_list)
             pitch_avg = sum(pitch_list) / len(pitch_list)
-            file.write(f"{prev_note}    {pitch_avg}\n")
+            # file.write(f"{prev_note}    {pitch_avg}\n")
             duration = time.time() - start
-            result_list.append([prev_note, pitch_avg, duration])
-    # Close stream
+            # result_list.append([prev_note, pitch_avg, duration])
+
+
+    beat_duration = (time.time() - start) * bps
+    beat_count = int(round(beat_duration))
+    result_list.append([prev_note, pitch_avg, beat_count])
     stream.stop_stream()
     stream.close()
     p.terminate()
 
+    # Signal the metronome to stop
+    stop_event.set()
+    metronome_thread.join()
+
+    print("Recording complete.")
+
     return result_list
 
+# Example usage
 
+if __name__ == "__main__":
+    result_audio = record_music(120, 5, 'output.txt', 0.01)
+
+    print(result_audio)

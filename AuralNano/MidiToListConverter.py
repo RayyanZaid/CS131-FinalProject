@@ -10,7 +10,7 @@ def note_frequency(note_number):
     # Converts MIDI note number to frequency
     return 440 * (2 ** ((note_number - 69) / 12))
 
-def read_midi(file_path, user_bpm):
+def read_midi(file_path, user_bpm, octave_shift=1):
     mid = MidiFile(file_path)
     note_events = []
     ticks_per_beat = mid.ticks_per_beat
@@ -22,16 +22,18 @@ def read_midi(file_path, user_bpm):
             # Convert delta times in MIDI ticks to microseconds based on user-defined tempo
             time += mido.tick2second(msg.time, ticks_per_beat, tempo) * 1e6
             if msg.type == 'note_on':
+                shifted_note_number = msg.note + (octave_shift * 12)  # Shift the note by one octave
                 note = {
-                    'note_name': midi_note_to_name(msg.note),
-                    'frequency': note_frequency(msg.note),
+                    'note_name': midi_note_to_name(shifted_note_number),
+                    'frequency': note_frequency(shifted_note_number),
                     'start': time,
                     'velocity': msg.velocity
                 }
                 note_events.append(note)
             elif msg.type == 'note_off':
+                shifted_note_number = msg.note + (octave_shift * 12)
                 for note in note_events:
-                    if note['note_name'] == midi_note_to_name(msg.note) and 'duration' not in note:
+                    if note['note_name'] == midi_note_to_name(shifted_note_number) and 'duration' not in note:
                         note['duration'] = time - note['start']
                         break
 
@@ -44,11 +46,9 @@ def read_midi(file_path, user_bpm):
     return output
 
 
-
 if __name__ == '__main__':
-    midi_path = r"C:\Users\rayya\Desktop\CS131-FinalProject-Music-Coach\AuralNano\EsAndGsWeb.mid"
+    midi_path = ""
     user_bpm = 100  # Define the BPM here
     notes = read_midi(midi_path, user_bpm)
     for note in notes:
         print(note)
-
