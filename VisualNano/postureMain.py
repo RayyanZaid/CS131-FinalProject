@@ -92,32 +92,32 @@ def postureGrading():
     # legArray = []
     feedback_conditions = {
     'leg_too_far': {
-        'condition': lambda angle: angle > 106,
+        'condition': lambda angle: angle > 140,
         'message': "Bring your feet closer to the chair. Feet are too far in front of you.",
         'lastFrame' : -10000
     },
     'leg_too_close': {
-        'condition': lambda angle: angle < 75,
+        'condition': lambda angle: angle < 60,
         'message': "Your feet are underneath the chair. Please bring them forward.",
         'lastFrame' : -10000,
     },
     'neck_too_down': {
-        'condition': lambda angle: angle < 125,
+        'condition': lambda angle: angle < 115,
         'message': "You are pointed too downwards. Lift your neck and point your instrument forward (parallel to the ground).",
         'lastFrame' : -10000,
     },
     'neck_too_up': {
-        'condition': lambda angle: angle > 160,
+        'condition': lambda angle: angle > 170,
         'message': "You are pointed too upwards. Bring your neck down.",
         'lastFrame' : -10000,
     },
     'back_too_hunched': {
-        'condition': lambda angle: angle < 80,
+        'condition': lambda angle: angle < 65,
         'message': "You are too hunched forward. Sit back and try to make your back straight.",
         'lastFrame' : -10000,
     },
     'back_too_leaned_back': {
-        'condition': lambda angle: angle > 110,
+        'condition': lambda angle: angle > 130,
         'message': "You are too leaned back. Sit up and try to make your back straight.",
         'lastFrame' : -10000,
     },
@@ -129,8 +129,9 @@ def postureGrading():
             
             numFrames += 1
 
-            if numFrames == 51:
-                testingFinished = True
+            # Below 2 lines are for debugging
+            # if numFrames == 51:
+            #     testingFinished = True
 
             interruptionForDebugging = cv2.waitKey(1) and 0xFF == ord('q')
 
@@ -140,8 +141,8 @@ def postureGrading():
             if  userInterruptedTesting:
                 print("Do not keep results of this rest")
                 break
-
-            if testingFinished:
+            
+            if visualGlobals.testDoneFlag:
                 sittingPostureGrade /= numFrames
                 neckPostureGrade /= numFrames
                 legPositionGrade /= numFrames
@@ -187,14 +188,14 @@ def postureGrading():
             # if holding_posture_angle > 120:
             #     print('bruh')
             # print(f"Sitting Posture : {sitting_posture_angle}")
-            # print(f"Holding Posture : {holding_posture_angle}")
+            # print(f"Holding Posture : {neck_posture_angle}")
             # print(f"Leg Position : {leg_position_angle}")
 
             sittingPostureGrade += gradePostureForEachFrame(sitting_posture_angle, sittingPostureDict)
             neckPostureGrade += gradePostureForEachFrame(neck_posture_angle, neckPostureDict)
             legPositionGrade += gradePostureForEachFrame(leg_position_angle, legPositionDict)
 
-            print(legPositionGrade)
+            # print(legPositionGrade)
             # neckArray.append(neck_posture_angle)
             # legArray.append(leg_position_angle)
 
@@ -209,7 +210,7 @@ def postureGrading():
                     feedbackArray.append((feedbackString,feedbackImage))
 
 
-    print("Done with posture grading")
+    print("Done with posture grading in postureMain.py")
 
 
 
@@ -269,65 +270,58 @@ def get_pose_estimation(image, pose):
 # Angles outside of the ranges specified will be graded as 0.
 
 sittingPostureDict = {
+    (85, 105): 100,
+    (80, 84): 95,
+    (75, 79): 90,
+    (70, 74): 85,
+    (65, 69): 80,
+    (60, 64): 75,
+    (55, 59): 70,
+    (0, 54): 65,
 
-    (90, 100): 100,
-
-
-    (85, 89): 90,
-    (80, 84): 80,
-    (75, 79): 70,
-    (70, 74): 60,
-    (65, 69): 50,
-    (60, 64): 40,
-    (0, 59) :  0,
-
-
-    (101, 105): 90,
-    (106, 110): 80,
-    (111, 115): 70,
-    (116, 120): 60,
-    (121, 125): 50,
-    (126, 130): 40,
-    (130, 180):  0,
+    (106, 115): 95,
+    (116, 125): 90,
+    (126, 135): 85,
+    (136, 145): 80,
+    (146, 155): 75,
+    (156, 165): 70,
+    (166, 180): 65,
 }
 
 # Define the holding posture dictionary with detailed ranges
 neckPostureDict = {
-    (145, 155): 100,
+    (140, 160): 100,
+    (125, 139): 95,
+    (120, 124): 90,
+    (115, 119): 85,
+    (110, 114): 80,
+    (95, 109): 75,
+    (0, 94): 70,
 
-    (130, 144): 95,
-    (125, 129): 85,
-    (120, 124): 75,
-    (115, 119): 65,
-    (100, 114): 50,
-    (0,    99):  0,
-
-    (156, 160) : 95,
-    (161, 165) : 90,
-    (166, 170) : 80,
-    (171, 180) : 70,
-
+    (161, 170): 95,
+    (171, 180): 90,
+    (181, 190): 85,
+    (191, 200): 80,
 }
-
-
 
 legPositionDict = {
-    (75, 95): 100,
-    (70, 74): 80,
-    (65, 69): 75,
-    (60, 64): 70,
-    (55, 59): 65,
-    (50, 54): 60,
-    (0, 44) : 0,
+    (70, 100): 100,
+    (65, 69): 95,
+    (60, 64): 90,
+    (55, 59): 85,
+    (50, 54): 80,
+    (45, 49): 75,
+    (0, 44): 70,
 
-
-    (96, 100): 95,
-    (101, 105): 90,
-    (106, 110): 80,
-    (111, 115): 70,
-    (116, 125): 60,
-    (126, 180): 0,
+    (101, 110): 95,
+    (111, 120): 90,
+    (121, 130): 85,
+    (131, 140): 80,
+    (141, 150): 75,
+    (151, 160): 70,
+    (161, 180): 65,
 }
+
 
 
 def gradePostureForEachFrame(angle, angleRangeToGrade):

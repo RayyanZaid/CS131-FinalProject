@@ -1,5 +1,0 @@
-For Posture Grading
-
-pip install opencv-python
-pip install mediapipe
-pip install google-cloud-firestore google-cloud-storage

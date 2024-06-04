@@ -1,15 +1,18 @@
 import zmq
 import time
 import os
+
 import visualGlobals
+import postureMain
+
+from SheetVision import main
+from midiFogLayer import transposeToBFlat, remove_last_note_events
 
 # Function to simulate waiting for an external signal from a website
 def wait_for_website_signal():
     print("Waiting for signal from website...")
     time.sleep(2)  # Simulate waiting
-
-    visualGlobals.sheetMusicName = input("Sheet Music Name: ")
-    visualGlobals.imagePath = input("Image Path: ")
+    visualGlobals.sheetMusicName = input("Sheet Music File Name: ")
     print("Received signal from website")
 
 # Function to send a file to the client
@@ -37,47 +40,44 @@ while True:
     message = data[2].decode('utf-8')
     print(f"Received request: {message}")
 
-    midi_filepath = "midi_file.mid"
-
     if message == "NEW_MUSIC":
-        # 1) Tell user to enter image and name on website
         print("Tell user to enter image and name on website")
-        # 2) Wait for the user to press "Submit" on the website
         wait_for_website_signal()
+        visualGlobals.imagePath = f"{visualGlobals.sheetMusicName}"
 
-        # 3) Run SheetVision to convert visualGlobals.imagePath to MIDI file        
-        # Simulate processing an image to MIDI and saving it to a file
-        print(f"Simulation of SheetVision converting {visualGlobals.imagePath} to a MIDI file")
-        time.sleep(1)
+        # Run SheetVision to convert visualGlobals.imagePath to MIDI file 
+        untransposed_midi_filepath = main.sheetvisionMain(visualGlobals.imagePath)
+        transposed_midi_filepath = transposeToBFlat(untransposed_midi_filepath)
+        finalized_midi_filepath = remove_last_note_events(transposed_midi_filepath)
 
-        file_contents = b"This is midi data"  # Predefined MIDI data as bytes
+        print(f"Transposed MIDI file path: {transposed_midi_filepath}")
+
         try:
-            with open(midi_filepath, 'wb') as f:
-                f.write(file_contents)
-                print(f"MIDI data written to {midi_filepath}")
-            send_file_and_string(socket, client_id, midi_filepath, visualGlobals.sheetMusicName)
+            send_file_and_string(socket, client_id, transposed_midi_filepath, visualGlobals.sheetMusicName)
+            os.remove(finalized_midi_filepath)
         except Exception as e:
-            print(f"Error writing MIDI file: {e}")
+            print(f"Error with MIDI file: {e}")
 
     elif message == "TEST":
-        # Grade posture (dummy grading for example)
         visualGlobals.testName = data[3].decode('utf-8')
-        print(f"Received testname: {visualGlobals.testName} from Aural Nano. Will perform test and store results in database.")
+        print(f"Received test name: {visualGlobals.testName} from Aural Nano. Will perform test and store results in database.")
         
-        start_time = time.time()
-        duration = 3 
+        visualGlobals.testDoneFlag = False
+        import threading
+        grading_thread = threading.Thread(target=postureMain.postureGrading)
+        grading_thread.start()
+        
+        while not visualGlobals.testDoneFlag:
+            try:
+                data = socket.recv_multipart(flags=zmq.NOBLOCK)
+                message = data[2].decode('utf-8')
+                if message == "TEST_DONE":
+                    print("Received TEST_DONE signal from Aural Nano.")
+                    visualGlobals.testDoneFlag = True
+            except zmq.Again:
+                time.sleep(0.1)
 
-
-        # Call postureMain function instead
-        while time.time() - start_time < duration:
-            print("Grading posture...")
-            time.sleep(0.25) 
-
+        grading_thread.join()
         print(f"Saving Posture Test data under test name : {visualGlobals.testName}")
         print("Posture Graded")
 
-        test_done_message = "Test Done on Visual!"
-        
-        # Send posture grade to the client
-        socket.send_multipart([client_id, test_done_message.encode('utf-8')])
-        print("Visual done signal sent to Aural Nano")

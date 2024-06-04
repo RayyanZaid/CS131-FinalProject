@@ -5,7 +5,7 @@ import os
 import cv2
 from io import BytesIO
 
-keyfilename = "cs131-finalproject-musiccoach-817785d8a2c0.json"
+keyfilename = "../cs131-finalproject-musiccoach-817785d8a2c0.json"
 storage_client = storage.Client.from_service_account_json(keyfilename)
 bucket = storage_client.get_bucket('cs131-music-coach-feedback-media')
 

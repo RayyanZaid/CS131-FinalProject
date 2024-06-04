@@ -59,11 +59,12 @@ while True:
         volume = calculate_rms(samples)
 
         # Check if the volume is above a certain threshold
-        if volume > 100:  # Adjust this threshold based on your needs
+        if volume > 5000:  # Adjust this threshold based on your needs
             note_name, note_freq = find_closest_note(pitch)
             print(f"Detected pitch: {pitch} Hz (Closest note: {note_name} {note_freq} Hz)")
         else:
-            print("Below volume threshold.")
+            # print("Below volume threshold.")
+            pass
     except KeyboardInterrupt:
         print("Exiting...")
         break
