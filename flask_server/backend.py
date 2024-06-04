@@ -32,7 +32,7 @@ def check():
         
 
         title = data_store["sheetMusicName"]
-        imagePath = data_store["imagePath"]
+        imagePath = data_store["imagePath"][7:]
         data_store["sheetMusicName"] = None
         data_store["imagePath"] = None
 
@@ -47,6 +47,7 @@ def check():
 @app.route('/get_image', methods=['GET'])
 def get_image():
     image_path = request.args.get('imagePath')
+    image_path = f"images\\{image_path}"
     if os.path.exists(image_path):
         return send_file(image_path)
     else:

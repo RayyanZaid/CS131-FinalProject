@@ -262,4 +262,4 @@ def sheetvisionMain(img_file):
 
 
 if __name__ == '__main__':
-    sheetvisionMain("EsAndGs.png")
+    sheetvisionMain(r"C:\Users\rayya\Desktop\CS131-FinalProject-Music-Coach\VisualNano\Drill3.png")

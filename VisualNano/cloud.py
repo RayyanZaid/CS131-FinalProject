@@ -53,7 +53,7 @@ def store_grade_with_files(username, testName, postureGrade, feedbackArray):
         }
 
         # Get a reference to the document for the username
-        user_ref = db.collection('users').document(username)
+        user_ref = db.collection('users').document("user1")
 
         # Check if the document exists
         doc = user_ref.get()

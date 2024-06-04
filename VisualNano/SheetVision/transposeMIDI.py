@@ -2,7 +2,7 @@ import mido
 from mido import MidiFile, MidiTrack, Message
 
 # Load the MIDI file
-input_midi_file = 'output.mid'
+input_midi_file = 'Drill3.mid'
 output_midi_file = 'transposed_to_Bb.mid'
 midi = MidiFile(input_midi_file)
 
