@@ -39,6 +39,7 @@ while True:
 
     if user_command == "NEW_MUSIC":
         # Send new music command to the server
+        os.remove("received_midi_file.mid")
         socket.send_multipart([client_id, b"NEW_MUSIC"])
         # Wait for the server's response (file data)
 
@@ -68,7 +69,7 @@ while True:
         #     print("Grading music...")
         #     time.sleep(0.25)
 
-        grade = testMusic()
+        grade, feedback = testMusic()
         
         print(f"Saving Music Test data under test name : {testName}")
         print(f"Music graded: User1 got a {grade}%.")

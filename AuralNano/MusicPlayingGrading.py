@@ -143,7 +143,7 @@ def testMusic():
 
     grade, feedback = grade_recording(sheetmusicResult, audio_result)
     print(grade)
-    return grade
+    return grade, feedback
 
 
 if __name__ == "__main__":
