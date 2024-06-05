@@ -99,7 +99,7 @@ while True:
         
         visualGlobals.testDoneFlag = False
         import threading
-        grading_thread = threading.Thread(target=grade_posture)
+        grading_thread = threading.Thread(target=postureMain.postureGrading)
         grading_thread.start()
         
         while not visualGlobals.testDoneFlag:
@@ -120,11 +120,12 @@ while True:
                     feedback_json = data[4].decode('utf-8')  # Decode feedback JSON
                     musicFeedbackArray = json.loads(feedback_json)  # Convert JSON string back to array
                     print(data)
-                    cloud.store_grade_with_files("user1", visualGlobals.testName, visualGlobals.finalPostureGrade, visualGlobals.postureFeedbackArray, musicGrade, musicFeedbackArray )
 
                     finalGrade = None
                     postureFeedbackArray = None 
                     visualGlobals.testDoneFlag = True
+                    time.sleep(5)
+                    cloud.store_grade_with_files("user1", visualGlobals.testName, visualGlobals.finalPostureGrade, visualGlobals.postureFeedbackArray, musicGrade, musicFeedbackArray )
             except zmq.Again:
                 time.sleep(0.1)
 

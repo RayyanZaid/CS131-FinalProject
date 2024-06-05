@@ -159,7 +159,8 @@ def postureGrading():
 
 
                 finalGrade = 0.4 * sittingPostureGrade + 0.35 * neckPostureGrade + 0.25 * legPositionGrade
-
+                visualGlobals.finalPostureGrade = finalGrade
+                visualGlobals.postureFeedbackArray = feedbackArray
                 return finalGrade, feedbackArray
                 
                 # wrapUpTesting(sittingPostureGrade, neckPostureGrade, legPositionGrade,feedbackArray,visualGlobals.testName)
