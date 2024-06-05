@@ -142,7 +142,10 @@ def testMusic():
 
 
     grade, feedback = grade_recording(sheetmusicResult, audio_result)
+
+    grade = round(grade,0)
     print(grade)
+    
     return grade, feedback
 
 
