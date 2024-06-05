@@ -10,11 +10,6 @@ import cloud
 
 import visualGlobals
 
-# MediaPipe drawing utility
-mp_drawing = mp.solutions.drawing_utils
-mp_drawing_styles = mp.solutions.drawing_styles
-mp_pose = mp.solutions.pose
-
 
 # main function for posture grading video stream
     # 1) while loop that records user
@@ -124,6 +119,15 @@ def postureGrading():
 }
     
 
+    def getMediapipeUtilities():
+        mp_drawing = mp.solutions.drawing_utils
+        mp_drawing_styles = mp.solutions.drawing_styles
+        mp_pose = mp.solutions.pose
+
+        return mp_drawing, mp_drawing_styles, mp_pose
+    
+    mp_drawing, mp_drawing_styles, mp_pose = getMediapipeUtilities()
+
     with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
         while True:
             
@@ -194,7 +198,7 @@ def postureGrading():
             # Display the frame. Might delete this later (just for debugging)
             cv2.imshow('Video Stream', frame)
 
-            sitting_posture_angle, neck_posture_angle, leg_position_angle = get_pose_estimation(frame,pose)
+            sitting_posture_angle, neck_posture_angle, leg_position_angle = get_pose_estimation(frame,pose, mp_pose)
             
             # if holding_posture_angle > 120:
             #     print('bruh')
@@ -242,7 +246,7 @@ def calculate_angle(a, b, c):
         angle = 360-angle
     return angle
 
-def get_pose_estimation(image, pose):
+def get_pose_estimation(image, pose, mp_pose):
     results = pose.process(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
     if not results.pose_landmarks:
         return None, None, None
