@@ -98,6 +98,21 @@ def grade_recording(sheet_music, recorded_audio):
 
 
 
+def transpose_by_tone(sheet_music):
+    # Create a dictionary to map notes to their next whole tone equivalents
+    note_mapping = {
+        'C': 'D', 'C#': 'D#', 'D': 'E', 'D#': 'F', 'E': 'F#',
+        'F': 'G', 'F#': 'G#', 'G': 'A', 'G#': 'A#', 'A': 'B', 'A#': 'C', 'B': 'C#',
+        'C3': 'D3', 'C#3': 'D#3', 'D3': 'E3', 'D#3': 'F3', 'E3': 'F#3',
+        'F3': 'G3', 'F#3': 'G#3', 'G3': 'A3', 'G#3': 'A#3', 'A3': 'B3', 'A#3': 'C4', 'B3': 'C#4',
+        'C4': 'D4', 'C#4': 'D#4', 'D4': 'E4', 'D#4': 'F4', 'E4': 'F#4',
+        'F4': 'G4', 'F#4': 'G#4', 'G4': 'A4', 'G#4': 'A#4', 'A4': 'B4', 'A#4': 'C5', 'B4': 'C#5',
+        # You can continue for other octaves as necessary
+    }
+    
+    # Update each note in the sheet music array to its whole tone higher equivalent
+    transposed_sheet_music = [[note_mapping.get(note[0], note[0]), note[1], note[2]] for note in sheet_music]
+    return transposed_sheet_music
 
 
 def raise_octave(sheet_music):
@@ -123,6 +138,8 @@ def testMusic():
     sheetmusicResult = read_midi("received_midi_file.mid", bpm)
 
     sheetmusicResult = raise_octave(sheetmusicResult)
+
+    sheetmusicResult = transpose_by_tone(sheetmusicResult)
     print(sheetmusicResult)
 
     measures = count_measures(sheetmusicResult)
@@ -132,7 +149,7 @@ def testMusic():
 
     measures += 1
     audio_result = record_music(bpm, measures, path, vol)
-
+    audio_result = transpose_by_tone(audio_result)
     print(f"Sheet Music Array: {sheetmusicResult}")
     print(f"Audio Array: {audio_result}")
 
