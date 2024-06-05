@@ -51,7 +51,7 @@ def send_file_and_string(socket, client_id, filepath, sheetMusicName):
 # Set up ZMQ context and socket
 context = zmq.Context()
 socket = context.socket(zmq.ROUTER)  # ROUTER socket for more complex communication
-socket.bind("tcp://192.168.4.45:5555")  # Bind to port 5555
+socket.bind("tcp://192.168.7.191:5555")  # Bind to port 5555
 
 print("Visual Nano server started, waiting for client...")
 
