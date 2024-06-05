@@ -125,7 +125,7 @@ def postureGrading():
     
 
     with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
-        while cap.isOpened():
+        while True:
             
             numFrames += 1
 
