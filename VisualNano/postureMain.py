@@ -145,6 +145,8 @@ def postureGrading():
                 break
             
             if visualGlobals.testDoneFlag:
+                cap.release()
+                cv2.destroyAllWindows()
                 sittingPostureGrade /= numFrames
                 neckPostureGrade /= numFrames
                 legPositionGrade /= numFrames
