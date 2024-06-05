@@ -109,6 +109,8 @@ def postureGrading():
         with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
             print("Inside MP POSE")
             while True:
+
+                print("Inside While loop")
                 success, frame = cap.read()
                 if not success:
                     print("Error: Frame not available. Video has finished or is corrupt")
@@ -120,6 +122,7 @@ def postureGrading():
 
                 cv2.imshow('Video Stream', frame)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
+                    print("What the")
                     break
 
                 # Process the image and detect the pose
