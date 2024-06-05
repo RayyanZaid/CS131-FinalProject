@@ -24,6 +24,3 @@ def playText(text):
 
     # Optionally, remove the file after playing
     os.remove("speech.mp3")
-
-
-playText("fuck you")

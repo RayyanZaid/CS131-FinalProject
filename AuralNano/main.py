@@ -2,89 +2,60 @@ import zmq
 import time
 import os
 import uuid
-
 import datetime
-
 import auralGlobals
-
 from MusicPlayingGrading import testMusic
-
 from playMidiFile import play_midi
 
-# Function to receive a file from the server
+from TextToSpeech import playText
+from SpeechRecognition import speech_recognition
 def receive_file_and_string(socket, save_path):
-
     data = socket.recv_multipart()
     file_data = data[0]
     message_str = data[1].decode('utf-8')
-
     auralGlobals.sheetMusicName = message_str
-
     with open(save_path, 'wb') as f:
         f.write(file_data)
     print(f"File received and saved to {save_path} and string {message_str}")
 
+
+
 # Set up ZMQ context and socket
 context = zmq.Context()
-socket = context.socket(zmq.DEALER)  # DEALER socket for more complex communication
+socket = context.socket(zmq.DEALER)
 client_id = str(uuid.uuid4()).encode('utf-8')
 socket.identity = client_id
-socket.connect("tcp://192.168.7.191:5555")  # Connect to the server's port
-
+socket.connect("tcp://192.168.7.191:5555")
 print("Aural Nano client started, waiting for user command...")
 
 while True:
-    # Simulate user command
-    user_command = input("Enter command (NEW_MUSIC/TEST/PLAY): ").strip().upper()
+    speech = speech_recognition()
+    if speech == "error":
+        continue
 
-    if user_command == "NEW_MUSIC":
-        # Send new music command to the server
+    if "new music" in speech:
         os.remove("received_midi_file.mid")
+        playText("Upload a clear screenshot of your sheet music on the website.")
         socket.send_multipart([client_id, b"NEW_MUSIC"])
-        # Wait for the server's response (file data)
-
-        print("Waiting say this with voice")
+        playText("I am processing your sheet music is processing now. This may take a while, so feel free to practice on your own until you hear me tell you I'm ready")
         receive_file_and_string(socket, "received_midi_file.mid")
-        
-        # Simulate waiting for user command for the next step
-        time.sleep(2)
+        playText("I have finished processing the sheet music. Feel free to say any of the commands you see on the screen")
 
-    elif user_command == "TEST":
-        # Send test command to the server
-
-        print("Send a voice command to tell the user to be seated and ready with correct posture in 4 seconds")
-
-        time.sleep(4)
-
+    elif "test" in speech:
+        playText("Angle the camera to have a side view of yourself.")
+        playText("Get ready for a 4 beat count off and then play the music. You have 5 seconds before the count off")
+        time.sleep(5)
         testName = auralGlobals.sheetMusicName + "-" + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
         socket.send_multipart([client_id, b"TEST", testName.encode('utf-8')])
-        
-
-        # Call Wiiliam's stuff here
-        # start_time = time.time()
-        # duration = 20
-
-        # while time.time() - start_time < duration:
-        #     print("Grading music...")
-        #     time.sleep(0.25)
-
         grade, feedback = testMusic()
-        
-        print(f"Saving Music Test data under test name : {testName}")
-        print(f"Music graded: User1 got a {grade}%.")
-
-        # Notify Visual Nano that the test is done
+        playText(f"Music Test Completed: {testName} with grade {grade}%. Check your test cards on the website for more details.")
         socket.send_multipart([client_id, b"TEST_DONE"])
-        print("Sent TEST_DONE signal to Visual Nano")
+        print("Test results sent to Visual Nano")
 
-    elif user_command == "PLAY":
-        
-        
-        print("Will play the music now")
-
+    elif "play" in speech:
+        playText("I will play the music for you now. Feel free to follow along")
         play_midi('received_midi_file.mid')
-        print("Music played.")
+        playText("Music has finished playing")
 
     else:
-        print("Invalid command.")
+        playText("Please say a valid command")
