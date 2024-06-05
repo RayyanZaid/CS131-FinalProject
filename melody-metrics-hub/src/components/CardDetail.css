@@ -3,23 +3,33 @@
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-width: 600px; /* Limiting max width for better readability */
-  margin: auto; /* Center the container */
+  width: 80%; /* Adjust width to preferred size */
+  max-width: 960px; /* Limiting max width for better readability */
+  margin: 40px auto; /* Center the container horizontally and add vertical spacing */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centers items horizontally in a flex container */
+  text-align: center; /* Centers text in its container */
 }
 
 .card-title {
-  color: #333333;
+  color: black;
   font-size: 24px;
   margin-bottom: 10px;
 }
 
 .card-grade {
-  color: #555555;
+  color: black;
+  font-weight: bold;
   font-size: 18px;
   margin-bottom: 20px;
 }
 
 .feedback-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center feedback items horizontally */
   margin-bottom: 20px;
 }
 
@@ -28,18 +38,24 @@
   border-radius: 8px;
   padding: 10px;
   margin-bottom: 10px;
+  display: flex;
+  flex-direction: row; /* Adjust if necessary to align items in a row */
+  justify-content: center; /* Center the content inside the feedback item */
+  width: 100%;
 }
 
 .feedback-image {
-  width: 100%;
-  height: auto;
+  min-width: 500px;
+  min-height: 300px;
+
   margin-right: 10px;
   border-radius: 5px;
 }
 
 .feedback-text {
-  color: #666666;
+  color: black;
   font-size: 16px;
+  font-weight: bold;
 }
 
 .back-button {
@@ -50,8 +66,42 @@
   border-radius: 5px;
   cursor: pointer;
   font-size: 16px;
+  align-self: center; /* Align button in the center of its flex container */
 }
 
 .back-button:hover {
   background-color: #0056b3;
+}
+
+.music-feedback-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center; /* Centers the music feedback boxes horizontally */
+  gap: 10px; /* Adds space between the cards */
+  width: 100%;
+}
+
+.feedback-note-box {
+  padding: 8px;
+  margin: 5px;
+  border-radius: 8px;
+  color: black;
+  font-weight: bold;
+  flex: 1 1 180px; /* Allows boxes to grow and shrink but not smaller than 180px */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center the content inside the box vertically and horizontally */
+}
+
+.correct-feedback {
+  background-color: #50c878;
+}
+
+.incorrect-feedback {
+  background-color: #f88379;
+}
+
+.feedback-details {
+  font-size: 14px;
+  opacity: 0.9;
 }

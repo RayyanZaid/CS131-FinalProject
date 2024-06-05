@@ -39,6 +39,7 @@ while True:
 
         playText("Upload a clear screenshot of your sheet music on the website.")
         socket.send_multipart([client_id, b"NEW_MUSIC"])
+        time.sleep(3)
         playText("I will be processing your sheet music. This may take a while, so feel free to practice on your own until you hear me tell you I'm ready")
         receive_file_and_string(socket, "received_midi_file.mid")
         playText("I have finished processing the sheet music. Feel free to say any of the commands you see on the screen")
@@ -53,7 +54,9 @@ while True:
 
         # Assuming 'testMusic' returns an integer grade and a feedback array
         grade, feedback = testMusic()
-
+        
+        if grade < 0:
+            grade = 0
         # Convert feedback array to JSON string
         feedback_json = json.dumps(feedback)
 

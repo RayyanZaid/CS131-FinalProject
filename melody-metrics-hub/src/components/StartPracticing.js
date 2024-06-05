@@ -1,55 +1,53 @@
-// StartPracticing.js
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React from "react";
+import "./CardDetail.css"; // Ensure this path correctly points to your CSS file
 
-function StartPracticing() {
-  const [title, setTitle] = useState("");
-  const [image, setImage] = useState(null);
-  const navigate = useNavigate();
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("image", image);
-
-    try {
-      const response = await fetch("http://192.168.4.45:5000/submit", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log(data);
-      const imageUrl = URL.createObjectURL(image);
-      navigate("/confirmation", { state: { title, imageUrl } });
-    } catch (error) {
-      console.error("Error submitting data:", error);
-    }
-  };
+function CardDetail({ card, onBack }) {
+  if (!card) return null;
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h1>Start Practicing</h1>
-      <label>
-        Title:
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-      </label>
-      <label>
-        Image:
-        <input type="file" onChange={(e) => setImage(e.target.files[0])} />
-      </label>
-      <button type="submit">Submit</button>
-    </form>
+    <div className="card-detail-container">
+      <h1 className="card-title">{card.name}</h1>
+      <p className="card-grade">Posture Grade: {card.postureGrade}</p>
+      <p className="card-grade">Music Grade: {card.musicGrade}</p>
+      <div className="feedback-container">
+        {card.postureFeedbackArray.map((feedback, idx) => (
+          <div className="feedback-item" key={idx}>
+            <img
+              src={feedback.feedbackImage}
+              alt={`Feedback ${idx + 1}`}
+              className="feedback-image"
+            />
+            <p className="feedback-text">{feedback.feedbackText}</p>
+          </div>
+        ))}
+
+        <div className="music-feedback-container">
+          {card.musicFeedbackArray &&
+            card.musicFeedbackArray.map((feedback, idx) => (
+              <div
+                key={idx}
+                className={`feedback-note-box ${
+                  feedback.rhythm_correctness && feedback.tone === "In tune"
+                    ? "correct-feedback"
+                    : "incorrect-feedback"
+                }`}
+              >
+                <div>{feedback.note}</div>
+                <div className="feedback-details">
+                  Rhythm:{" "}
+                  {feedback.rhythm_correctness ? "Correct" : "Incorrect"}
+                  <br />
+                  Tone: {feedback.tone}
+                </div>
+              </div>
+            ))}
+        </div>
+      </div>
+      <button className="back-button" onClick={onBack}>
+        Back to Test Cards
+      </button>
+    </div>
   );
 }
 
-export default StartPracticing;
+export default CardDetail;
