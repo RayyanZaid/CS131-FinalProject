@@ -14,6 +14,10 @@ function MainRoutes() {
     navigate("/cardDetail");
   };
 
+  const onBackCardClick = () => {
+    navigate("/testcards");
+  };
+
   return (
     <Routes>
       <Route path="/" element={<StartPracticing />} />
@@ -22,7 +26,10 @@ function MainRoutes() {
         path="/testCards"
         element={<TestCards onCardClick={onCardClick} />}
       />
-      <Route path="/cardDetail" element={<CardDetail card={selectedCard} />} />
+      <Route
+        path="/cardDetail"
+        element={<CardDetail card={selectedCard} onBack={onBackCardClick} />}
+      />
     </Routes>
   );
 }

@@ -1,0 +1,57 @@
+.card-detail-container {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 600px; /* Limiting max width for better readability */
+  margin: auto; /* Center the container */
+}
+
+.card-title {
+  color: #333333;
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.card-grade {
+  color: #555555;
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.feedback-container {
+  margin-bottom: 20px;
+}
+
+.feedback-item {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.feedback-image {
+  width: 100%;
+  height: auto;
+  margin-right: 10px;
+  border-radius: 5px;
+}
+
+.feedback-text {
+  color: #666666;
+  font-size: 16px;
+}
+
+.back-button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.back-button:hover {
+  background-color: #0056b3;
+}

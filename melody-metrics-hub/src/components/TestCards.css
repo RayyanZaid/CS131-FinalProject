@@ -1,0 +1,54 @@
+.title-text {
+  text-align: center;
+  font-size: 60px;
+  font-family: "Courier New", Courier, monospace;
+}
+
+.test-cards-container {
+  background-color: #f0f0f0;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.cards-scroll-container {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(240px, 1fr)
+  ); /* Adjust minmax for card width */
+  gap: 20px; /* Space between cards */
+  overflow-y: auto;
+  max-height: 80vh;
+  padding: 10px;
+}
+
+.card {
+  border: 5px solid #24175c;
+  border-radius: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+  padding: 10px;
+  margin: 20px;
+  text-align: center;
+  font-size: large;
+}
+
+.card:hover {
+  transform: scale(1.1);
+}
+
+.feedback {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.feedback-image {
+  width: 100px;
+  height: 100px;
+  margin-right: 10px;
+  border-radius: 5px;
+}

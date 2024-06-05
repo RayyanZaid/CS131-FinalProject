@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { db, doc, getDoc } from "./firebaseConfig";
+import "./TestCards.css"; // Make sure the CSS file is correctly imported
 
 function TestCards({ onCardClick }) {
   const [testCards, setTestCards] = useState([]);
@@ -13,13 +14,12 @@ function TestCards({ onCardClick }) {
         const data = docSnap.data();
         const tests = data.tests.map((test) => ({
           name: test.name,
-          postureGrade: test.postureGrade,
+          postureGrade: Math.round(test.postureGrade),
           postureFeedbackArray: test.postureFeedbackArray,
+          musicGrade: test.musicGrade, // Include musicGrade here if it exists in your data
         }));
 
-        // console.log(data.tests[0].postureFeedbackArray[0].feedbackText);
-
-        setTestCards(tests);
+        setTestCards(tests.reverse());
       } else {
         console.log("No such document!");
       }
@@ -29,23 +29,17 @@ function TestCards({ onCardClick }) {
   }, []);
 
   return (
-    <div>
-      <h1>Test Cards</h1>
-      <div style={{ overflowY: "scroll", maxHeight: "80vh" }}>
+    <div className="test-cards-container">
+      <h1 className="title-text">Test Cards</h1>
+      <div className="cards-scroll-container">
         {testCards.map((card, index) => (
-          <div key={index} onClick={() => onCardClick(card)}>
+          <div className="card" key={index} onClick={() => onCardClick(card)}>
             <h2>{card.name}</h2>
-            <p>Grade: {card.postureGrade}</p>
-            {card.postureFeedbackArray.map((feedback, idx) => (
-              <div key={idx}>
-                <img
-                  src={feedback[0]}
-                  alt={`Feedback ${idx + 1}`}
-                  style={{ width: "100px", height: "100px" }}
-                />
-                <p>{feedback[1]}</p>
-              </div>
-            ))}
+            <p>Posture: {card.postureGrade}%</p>
+            {card.musicGrade && <p>Music: {card.musicGrade}%</p>}{" "}
+            {card.musicFeedbackArray && (
+              <p>Music: {card.musicFeedbackArray}%</p>
+            )}{" "}
           </div>
         ))}
       </div>
