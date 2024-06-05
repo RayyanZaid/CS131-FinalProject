@@ -53,11 +53,6 @@ while True:
 
         # Assuming 'testMusic' returns an integer grade and a feedback array
         grade, feedback = testMusic()
-<<<<<<< HEAD
-        socket.send_multipart([client_id, b"TEST_DONE"])
-        playText(f"Music Test Completed: You played {auralGlobals.sheetMusicName} and receieved a music grade of {grade}%. Check your test cards on the website for more details and feedback.")
-        
-=======
 
         # Convert feedback array to JSON string
         feedback_json = json.dumps(feedback)
@@ -68,7 +63,6 @@ while True:
         print("Test results and feedback sent to Visual Nano")
         playText(f"Music Test Completed: You played {auralGlobals.sheetMusicName} and receieved a music grade of {grade}%. Check your test cards on the website for more details and feedback.")
 
->>>>>>> 70db2ab5d470202dc82c81721afd088025dfb6ba
         print("Test results sent to Visual Nano")
 
     elif "play" in speech:

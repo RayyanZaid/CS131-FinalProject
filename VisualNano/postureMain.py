@@ -15,45 +15,12 @@ mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_pose = mp.solutions.pose
 
-feedback_conditions = {
-'leg_too_far': {
-    'condition': lambda angle: angle > 140,
-    'message': "Bring your feet closer to the chair. Feet are too far in front of you.",
-    'lastFrame' : -10000
-},
-'leg_too_close': {
-    'condition': lambda angle: angle < 60,
-    'message': "Your feet are underneath the chair. Please bring them forward.",
-    'lastFrame' : -10000,
-},
-'neck_too_down': {
-    'condition': lambda angle: angle < 115,
-    'message': "You are pointed too downwards. Lift your neck and point your instrument forward (parallel to the ground).",
-    'lastFrame' : -10000,
-},
-'neck_too_up': {
-    'condition': lambda angle: angle > 170,
-    'message': "You are pointed too upwards. Bring your neck down.",
-    'lastFrame' : -10000,
-},
-'back_too_hunched': {
-    'condition': lambda angle: angle < 65,
-    'message': "You are too hunched forward. Sit back and try to make your back straight.",
-    'lastFrame' : -10000,
-},
-'back_too_leaned_back': {
-    'condition': lambda angle: angle > 130,
-    'message': "You are too leaned back. Sit up and try to make your back straight.",
-    'lastFrame' : -10000,
-},
-}
-
 
 # main function for posture grading video stream
     # 1) while loop that records user
     # 2) use mediapipe to get joints
     # 3) calculate angles to keep track of posture
-    
+
 def process_feedback(feedback_conditions, leg_position_angle, neck_posture_angle, sitting_posture_angle, frame, numFrame, fps):
     numFeedbackPointersPerFrame = 0
     feedbackString = ""
@@ -88,87 +55,170 @@ def process_feedback(feedback_conditions, leg_position_angle, neck_posture_angle
     return feedbackString, feedbackImage
 
 
+
 def postureGrading():
-    print("Got into the postureGrading() function")
 
     cap = cv2.VideoCapture(0)
+    
+    fps = cap.get(cv2.CAP_PROP_FPS)
 
-
-    print("Started VideoCapture")
     if not cap.isOpened():
         print("Error: Could not open video stream")
         return
 
-    try:
-        fps = cap.get(cv2.CAP_PROP_FPS)
-        numFrames = 0
-        sittingPostureGrade, neckPostureGrade, legPositionGrade = 0, 0, 0
-        feedbackArray = []
 
-        print("Going to use mp pose. Im pretty sure this is the error")
-        with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
-            print("Inside MP POSE")
-            while True:
+    # Variable to keep track of testing status. 
+    # Will recieve signal from other Nano to switch testingFinished = True
+    testingFinished = False
+    # For debugging, let's say testingFinished = True after 300 frames
 
-                print("Inside While loop")
-                success, frame = cap.read()
-                if not success:
-                    print("Error: Frame not available. Video has finished or is corrupt")
-                    break
+
+    # Variable to detect if user says "Stop"
+    userInterruptedTesting = False
+
+
+    sittingPostureGrade = 0
+    neckPostureGrade = 0
+    legPositionGrade = 0
+
+    
+    # list of feedback strings to images
+    feedbackArray : list[tuple[str : np.ndarray]] = []
+
+
+    numFrames = 0
+
+    # neckArray = []
+    # legArray = []
+    feedback_conditions = {
+    'leg_too_far': {
+        'condition': lambda angle: angle > 140,
+        'message': "Bring your feet closer to the chair. Feet are too far in front of you.",
+        'lastFrame' : -10000
+    },
+    'leg_too_close': {
+        'condition': lambda angle: angle < 60,
+        'message': "Your feet are underneath the chair. Please bring them forward.",
+        'lastFrame' : -10000,
+    },
+    'neck_too_down': {
+        'condition': lambda angle: angle < 115,
+        'message': "You are pointed too downwards. Lift your neck and point your instrument forward (parallel to the ground).",
+        'lastFrame' : -10000,
+    },
+    'neck_too_up': {
+        'condition': lambda angle: angle > 170,
+        'message': "You are pointed too upwards. Bring your neck down.",
+        'lastFrame' : -10000,
+    },
+    'back_too_hunched': {
+        'condition': lambda angle: angle < 65,
+        'message': "You are too hunched forward. Sit back and try to make your back straight.",
+        'lastFrame' : -10000,
+    },
+    'back_too_leaned_back': {
+        'condition': lambda angle: angle > 130,
+        'message': "You are too leaned back. Sit up and try to make your back straight.",
+        'lastFrame' : -10000,
+    },
+}
+    
+
+    with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
+        while cap.isOpened():
+            
+            numFrames += 1
+
+            # Below 2 lines are for debugging
+            # if numFrames == 51:
+            #     testingFinished = True
+
+            interruptionForDebugging = cv2.waitKey(1) and 0xFF == ord('q')
+
+            if interruptionForDebugging:
+                print("In Debug")
+
+            if  userInterruptedTesting:
+                print("Do not keep results of this rest")
+                break
+            
+            if visualGlobals.testDoneFlag:
+                sittingPostureGrade /= numFrames
+                neckPostureGrade /= numFrames
+                legPositionGrade /= numFrames
+
+                print(f"Sitting Posture Grade : {sittingPostureGrade}")
+                print(f"Neck Posture Grade : {neckPostureGrade}")
                 
-                if visualGlobals.testDoneFlag:
-                    print("Test Done Flag is True now")
-                    break
+                print(f"Leg Position Grade : {legPositionGrade}")
 
-                cv2.imshow('Video Stream', frame)
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    print("What the")
-                    break
 
-                # Process the image and detect the pose
-                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                results = pose.process(frame_rgb)
+                print("Need to calculate score here and send pictures of posture to database")
+ 
+                
+                wrapUpTesting(sittingPostureGrade, neckPostureGrade, legPositionGrade,feedbackArray,visualGlobals.testName)
+                break
+                
+            success, frame = cap.read()
+            if not success:
+                print("Error: Frame not available. Video has finished or is corrupt")
+                break
 
-                if results.pose_landmarks:
-                    # Extract posture angles
-                    sitting_posture_angle, neck_posture_angle, leg_position_angle = get_pose_estimation(frame, pose)
-                    # Calculate grades
-                    sittingPostureGrade += gradePostureForEachFrame(sitting_posture_angle, sittingPostureDict)
-                    neckPostureGrade += gradePostureForEachFrame(neck_posture_angle, neckPostureDict)
-                    legPositionGrade += gradePostureForEachFrame(leg_position_angle, legPositionDict)
+            # Convert the BGR image to RGB for mediapipe cuz it cv2 uses BGR
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-                    # Collect feedback
+            # Process the image and detect the pose
+            results = pose.process(frame_rgb)
 
-                    
-                    if len(feedbackArray) < 6:
-                        feedbackString , feedbackImage = process_feedback(feedback_conditions, leg_position_angle, neck_posture_angle, sitting_posture_angle, frame, numFrames, fps)
+            # Draw the pose annotations on the frame.
+            mp_drawing.draw_landmarks(
+                frame,
+                results.pose_landmarks,
+                mp_pose.POSE_CONNECTIONS,
+                landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
 
-                        if len(feedbackString) > 0:
-                            feedbackArray.append((feedbackString,feedbackImage))
 
-    finally:
-        cap.release()
-        cv2.destroyAllWindows()
-        calculate_final_grades_and_cleanup(sittingPostureGrade, neckPostureGrade, legPositionGrade, numFrames, feedbackArray)
 
-def calculate_final_grades_and_cleanup(sittingPostureGrade, neckPostureGrade, legPositionGrade, numFrames, feedbackArray):
-    # Normalize grades
-    sittingPostureGrade /= numFrames
-    neckPostureGrade /= numFrames
-    legPositionGrade /= numFrames
+        # If no end cases run, then perform calculations
+            # Display the frame. Might delete this later (just for debugging)
+            cv2.imshow('Video Stream', frame)
 
-    # Calculate final weighted grade
-    finalGrade = 0.4 * sittingPostureGrade + 0.35 * neckPostureGrade + 0.25 * legPositionGrade
-    print(f"Final Grades: Sitting: {sittingPostureGrade}, Neck: {neckPostureGrade}, Legs: {legPositionGrade}, Combined: {finalGrade}")
+            sitting_posture_angle, neck_posture_angle, leg_position_angle = get_pose_estimation(frame,pose)
+            
+            # if holding_posture_angle > 120:
+            #     print('bruh')
+            # print(f"Sitting Posture : {sitting_posture_angle}")
+            # print(f"Holding Posture : {neck_posture_angle}")
+            # print(f"Leg Position : {leg_position_angle}")
 
-    # Send feedback and grade to cloud
-    # cloud.store_grade_with_files("user1", visualGlobals.testName, finalGrade, feedbackArray)
+            sittingPostureGrade += gradePostureForEachFrame(sitting_posture_angle, sittingPostureDict)
+            neckPostureGrade += gradePostureForEachFrame(neck_posture_angle, neckPostureDict)
+            legPositionGrade += gradePostureForEachFrame(leg_position_angle, legPositionDict)
 
-    # DONT send feedback, instead store in global variables
+            # print(legPositionGrade)
+            # neckArray.append(neck_posture_angle)
+            # legArray.append(leg_position_angle)
 
-    visualGlobals.finalGrade = finalGrade
-    visualGlobals.postureFeedbackArray = feedbackArray
+            
+            # TODO: Give Feedback
+
+
+            if len(feedbackArray) < 6:
+                feedbackString , feedbackImage = process_feedback(feedback_conditions, leg_position_angle, neck_posture_angle, sitting_posture_angle, frame, numFrames, fps)
+
+                if len(feedbackString) > 0:
+                    feedbackArray.append((feedbackString,feedbackImage))
+
+
     print("Done with posture grading in postureMain.py")
+
+
+
+
+            
+
+    cap.release()
+    cv2.destroyAllWindows()
 
 def calculate_angle(a, b, c):
     a = np.array(a)  # First point
@@ -295,7 +345,12 @@ def wrapUpTesting(sittingPostureGrade, neckPostureGrade, legPositionGrade, feedb
     finalGrade = 0.4 * sittingPostureGrade + 0.35 * neckPostureGrade + 0.25 * legPositionGrade
 
     # Send Feedback and Grade to Cloud Database
-    cloud.store_grade_with_files("user1", testName, finalGrade, feedbackArray)
+    # cloud.store_grade_with_files("user1", testName, finalGrade, feedbackArray)
+
+    # DO NOT STORE
+
+    visualGlobals.finalPostureGrade = finalGrade
+    visualGlobals.postureFeedbackArray = feedbackArray
 
 if __name__ == '__main__':
     postureGrading()
