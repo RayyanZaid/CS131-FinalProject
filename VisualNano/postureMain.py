@@ -153,9 +153,9 @@ def postureGrading():
 
 def calculate_final_grades_and_cleanup(sittingPostureGrade, neckPostureGrade, legPositionGrade, numFrames, feedbackArray):
     # Normalize grades
-    sittingPostureGrade /= max(numFrames, 1)
-    neckPostureGrade /= max(numFrames, 1)
-    legPositionGrade /= max(numFrames, 1)
+    sittingPostureGrade /= numFrames
+    neckPostureGrade /= numFrames
+    legPositionGrade /= numFrames
 
     # Calculate final weighted grade
     finalGrade = 0.4 * sittingPostureGrade + 0.35 * neckPostureGrade + 0.25 * legPositionGrade
