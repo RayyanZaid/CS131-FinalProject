@@ -214,8 +214,8 @@ def sheetvisionMain(img_file):
     for r in flat_recs:
         r.draw(img, (0, 0, 255), 2)
         
-    # # cv2.imwrite('res.png', img)
-    # openfile('res.png')
+    cv2.imwrite('res.png', img)
+    openfile('res.png')
    
     # for note_group in note_groups:
         # print([ note.note + " " + note.sym for note in note_group])
