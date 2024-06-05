@@ -28,12 +28,15 @@ def upload_file_to_gcs(frame, destination_blob_name):
     # Return the public URL of the uploaded file
     return blob.public_url
 
-def store_grade_with_files(username, testName, postureGrade, feedbackArray):
+def store_grade_with_files(username, testName, postureGrade, postureFeedbackArray, musicGrade, musicFeedbackArray):
     
+
+    # Organize Posture Data
+
     feedbackAndImages = []
 
     i = 0
-    for eachFeedback in feedbackArray:
+    for eachFeedback in postureFeedbackArray:
         eachFeedbackText = eachFeedback[0]
         eachImage = eachFeedback[1]
         bucketLocationPath = f"{username}/{testName}-{i}"
@@ -43,13 +46,17 @@ def store_grade_with_files(username, testName, postureGrade, feedbackArray):
         })
         i += 1
 
-    # use current date as path in cloud storage
+    # Organize Music Data
 
+
+    # use current date as path in cloud storage
     try:
         currentTestData = {
             'name': testName,
             'postureGrade': postureGrade,
             'postureFeedbackArray': feedbackAndImages,
+            'musicGrade' : musicGrade,
+            'musicFeedbackArray' : musicFeedbackArray,
         }
 
         # Get a reference to the document for the username

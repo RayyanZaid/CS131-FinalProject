@@ -8,5 +8,5 @@ sheetMusicName = ""
 imagePath = ""
 testDoneFlag = False
 
-finalGrade = None
+finalPostureGrade = None
 postureFeedbackArray = None

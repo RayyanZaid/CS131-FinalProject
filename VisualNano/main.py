@@ -11,6 +11,8 @@ from midiFogLayer import transposeToBFlat, remove_last_note_events
 
 import cloud
 
+import json
+
 # Function to wait for an external signal from the website and fetch image
 def wait_for_website_signal():
     print("Waiting for signal from website...")
@@ -52,7 +54,7 @@ def send_file_and_string(socket, client_id, filepath, sheetMusicName):
 # Set up ZMQ context and socket
 context = zmq.Context()
 socket = context.socket(zmq.ROUTER)  # ROUTER socket for more complex communication
-socket.bind("tcp://192.168.7.191:5555")  # Bind to port 5555
+socket.bind("tcp://192.168.4.45:5555")  # Bind to port 5555
 
 print("Visual Nano server started, waiting for client...")
 
@@ -100,8 +102,18 @@ while True:
                     print("Received TEST_DONE signal from Aural Nano.")
 
                     # Get the finalGrade and Feedback array using globals
-                    cloud.store_grade_with_files("user1", visualGlobals.testName, visualGlobals.finalGrade, visualGlobals.postureFeedbackArray)
-                    
+
+                    # Decode the received data from bytes to string and convert to float first
+                    musicGrade = float(data[3].decode('utf-8'))
+
+                    # If you need to store the grade as an integer
+                    musicGrade = int(musicGrade)
+
+                    feedback_json = data[4].decode('utf-8')  # Decode feedback JSON
+                    musicFeedbackArray = json.loads(feedback_json)  # Convert JSON string back to array
+                    print(data)
+                    cloud.store_grade_with_files("user1", visualGlobals.testName, visualGlobals.finalPostureGrade, visualGlobals.postureFeedbackArray, musicGrade, musicFeedbackArray )
+
                     finalGrade = None
                     postureFeedbackArray = None 
                     visualGlobals.testDoneFlag = True
