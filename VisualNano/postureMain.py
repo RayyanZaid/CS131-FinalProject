@@ -162,11 +162,12 @@ def calculate_final_grades_and_cleanup(sittingPostureGrade, neckPostureGrade, le
     print(f"Final Grades: Sitting: {sittingPostureGrade}, Neck: {neckPostureGrade}, Legs: {legPositionGrade}, Combined: {finalGrade}")
 
     # Send feedback and grade to cloud
-    cloud.store_grade_with_files("user1", visualGlobals.testName, finalGrade, feedbackArray)
+    # cloud.store_grade_with_files("user1", visualGlobals.testName, finalGrade, feedbackArray)
 
-            
+    # DONT send feedback, instead store in global variables
 
-
+    visualGlobals.finalGrade = finalGrade
+    visualGlobals.postureFeedbackArray = feedbackArray
     print("Done with posture grading in postureMain.py")
 
 def calculate_angle(a, b, c):

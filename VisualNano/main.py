@@ -9,6 +9,7 @@ import postureMain
 from SheetVision import main
 from midiFogLayer import transposeToBFlat, remove_last_note_events
 
+import cloud
 
 # Function to wait for an external signal from the website and fetch image
 def wait_for_website_signal():
@@ -97,6 +98,12 @@ while True:
                 message = data[2].decode('utf-8')
                 if message == "TEST_DONE":
                     print("Received TEST_DONE signal from Aural Nano.")
+
+                    # Get the finalGrade and Feedback array using globals
+                    cloud.store_grade_with_files("user1", visualGlobals.testName, visualGlobals.finalGrade, visualGlobals.postureFeedbackArray)
+                    
+                    finalGrade = None
+                    postureFeedbackArray = None 
                     visualGlobals.testDoneFlag = True
             except zmq.Again:
                 time.sleep(0.1)

@@ -47,9 +47,20 @@ while True:
         time.sleep(5)
         testName = auralGlobals.sheetMusicName + "-" + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         socket.send_multipart([client_id, b"TEST", testName.encode('utf-8')])
+        import json
+
+        # Assuming 'testMusic' returns an integer grade and a feedback array
         grade, feedback = testMusic()
+
+        # Convert feedback array to JSON string
+        feedback_json = json.dumps(feedback)
+
+        # Send grade and feedback as part of the multipart message
+        socket.send_multipart([client_id, b"TEST_DONE", str(grade).encode('utf-8'), feedback_json.encode('utf-8')])
+
+        print("Test results and feedback sent to Visual Nano")
         playText(f"Music Test Completed: You played {auralGlobals.sheetMusicName} and receieved a music grade of {grade}%. Check your test cards on the website for more details and feedback.")
-        socket.send_multipart([client_id, b"TEST_DONE"])
+
         print("Test results sent to Visual Nano")
 
     elif "play" in speech:

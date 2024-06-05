@@ -7,3 +7,6 @@ testName = ""
 sheetMusicName = ""
 imagePath = ""
 testDoneFlag = False
+
+finalGrade = None
+postureFeedbackArray = None
