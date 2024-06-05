@@ -48,7 +48,7 @@ while True:
         testName = auralGlobals.sheetMusicName + "-" + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         socket.send_multipart([client_id, b"TEST", testName.encode('utf-8')])
         grade, feedback = testMusic()
-        playText(f"Music Test Completed: {testName} with grade {grade}%. Check your test cards on the website for more details.")
+        playText(f"Music Test Completed: You played {auralGlobals.sheetMusicName} and receieved a music grade of {grade}%. Check your test cards on the website for more details and feedback.")
         socket.send_multipart([client_id, b"TEST_DONE"])
         print("Test results sent to Visual Nano")
 
