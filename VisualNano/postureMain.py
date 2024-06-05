@@ -89,7 +89,12 @@ def process_feedback(feedback_conditions, leg_position_angle, neck_posture_angle
 
 
 def postureGrading():
+    print("Got into the postureGrading() function")
+
     cap = cv2.VideoCapture(0)
+
+
+    print("Started VideoCapture")
     if not cap.isOpened():
         print("Error: Could not open video stream")
         return
@@ -100,7 +105,9 @@ def postureGrading():
         sittingPostureGrade, neckPostureGrade, legPositionGrade = 0, 0, 0
         feedbackArray = []
 
+        print("Going to use mp pose. Im pretty sure this is the error")
         with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
+            print("Inside MP POSE")
             while True:
                 success, frame = cap.read()
                 if not success:
@@ -108,6 +115,7 @@ def postureGrading():
                     break
                 
                 if visualGlobals.testDoneFlag:
+                    print("Test Done Flag is True now")
                     break
 
                 cv2.imshow('Video Stream', frame)
