@@ -16,6 +16,39 @@ import visualGlobals
     # 2) use mediapipe to get joints
     # 3) calculate angles to keep track of posture
 
+feedback_conditions = {
+        'leg_too_far': {
+            'condition': lambda angle: angle > 140,
+            'message': "Bring your feet closer to the chair. Feet are too far in front of you. Proper leg position helps maintain balance and improves airflow control.",
+            'lastFrame': -10000
+        },
+        'leg_too_close': {
+            'condition': lambda angle: angle < 60,
+            'message': "Your feet are underneath the chair. Please bring them forward. This will provide better support and enhance your breathing technique.",
+            'lastFrame': -10000,
+        },
+        'neck_too_down': {
+            'condition': lambda angle: angle < 115,
+            'message': "You are pointed too downwards. Lift your neck and point your instrument forward (parallel to the ground). Keeping your neck aligned aids in easier breathing and better tone production.",
+            'lastFrame': -10000,
+        },
+        'neck_too_up': {
+            'condition': lambda angle: angle > 170,
+            'message': "You are pointed too upwards. Bring your neck down. This adjustment helps in maintaining a consistent air stream and improves sound quality.",
+            'lastFrame': -10000,
+        },
+        'back_too_hunched': {
+            'condition': lambda angle: angle < 65,
+            'message': "You are too hunched forward. Sit back and try to make your back straight. A straight back allows for deeper breaths and more stable tone.",
+            'lastFrame': -10000,
+        },
+        'back_too_leaned_back': {
+            'condition': lambda angle: angle > 130,
+            'message': "You are too leaned back. Sit up and try to make your back straight. This posture promotes better lung capacity and control over your playing.",
+            'lastFrame': -10000,
+        },
+    }
+
 def process_feedback(feedback_conditions, leg_position_angle, neck_posture_angle, sitting_posture_angle, frame, numFrame, fps):
     numFeedbackPointersPerFrame = 0
     feedbackString = ""
@@ -85,38 +118,8 @@ def postureGrading():
 
     # neckArray = []
     # legArray = []
-    feedback_conditions = {
-    'leg_too_far': {
-        'condition': lambda angle: angle > 140,
-        'message': "Bring your feet closer to the chair. Feet are too far in front of you.",
-        'lastFrame' : -10000
-    },
-    'leg_too_close': {
-        'condition': lambda angle: angle < 60,
-        'message': "Your feet are underneath the chair. Please bring them forward.",
-        'lastFrame' : -10000,
-    },
-    'neck_too_down': {
-        'condition': lambda angle: angle < 115,
-        'message': "You are pointed too downwards. Lift your neck and point your instrument forward (parallel to the ground).",
-        'lastFrame' : -10000,
-    },
-    'neck_too_up': {
-        'condition': lambda angle: angle > 170,
-        'message': "You are pointed too upwards. Bring your neck down.",
-        'lastFrame' : -10000,
-    },
-    'back_too_hunched': {
-        'condition': lambda angle: angle < 65,
-        'message': "You are too hunched forward. Sit back and try to make your back straight.",
-        'lastFrame' : -10000,
-    },
-    'back_too_leaned_back': {
-        'condition': lambda angle: angle > 130,
-        'message': "You are too leaned back. Sit up and try to make your back straight.",
-        'lastFrame' : -10000,
-    },
-}
+    
+
     
 
     def getMediapipeUtilities():
