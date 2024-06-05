@@ -137,9 +137,11 @@ def postureGrading():
 
             if interruptionForDebugging:
                 print("In Debug")
+                return finalGrade, feedbackArray
 
             if  userInterruptedTesting:
                 print("Do not keep results of this rest")
+                return finalGrade, feedbackArray
                 break
             
             if visualGlobals.testDoneFlag:
@@ -154,14 +156,20 @@ def postureGrading():
 
 
                 print("Need to calculate score here and send pictures of posture to database")
- 
+
+
+                finalGrade = 0.4 * sittingPostureGrade + 0.35 * neckPostureGrade + 0.25 * legPositionGrade
+
+                return finalGrade, feedbackArray
                 
-                wrapUpTesting(sittingPostureGrade, neckPostureGrade, legPositionGrade,feedbackArray,visualGlobals.testName)
+                # wrapUpTesting(sittingPostureGrade, neckPostureGrade, legPositionGrade,feedbackArray,visualGlobals.testName)
+                
                 break
                 
             success, frame = cap.read()
             if not success:
                 print("Error: Frame not available. Video has finished or is corrupt")
+                return finalGrade, feedbackArray
                 break
 
             # Convert the BGR image to RGB for mediapipe cuz it cv2 uses BGR
@@ -210,8 +218,9 @@ def postureGrading():
                     feedbackArray.append((feedbackString,feedbackImage))
 
 
+    
     print("Done with posture grading in postureMain.py")
-
+    return finalGrade, feedbackArray
 
 
 
@@ -336,21 +345,6 @@ def gradePostureForEachFrame(angle, angleRangeToGrade):
 
 
 
-def wrapUpTesting(sittingPostureGrade, neckPostureGrade, legPositionGrade, feedbackArray, testName):
-
-    # Calculate Final Weighted Grade
-
-    # Most important is Sitting, then Holding, then Leg
-    
-    finalGrade = 0.4 * sittingPostureGrade + 0.35 * neckPostureGrade + 0.25 * legPositionGrade
-
-    # Send Feedback and Grade to Cloud Database
-    # cloud.store_grade_with_files("user1", testName, finalGrade, feedbackArray)
-
-    # DO NOT STORE
-
-    visualGlobals.finalPostureGrade = finalGrade
-    visualGlobals.postureFeedbackArray = feedbackArray
 
 if __name__ == '__main__':
     postureGrading()

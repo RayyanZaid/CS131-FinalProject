@@ -51,6 +51,14 @@ def send_file_and_string(socket, client_id, filepath, sheetMusicName):
     except Exception as e:
         print(f"Failed to send file: {e}")
 
+
+def grade_posture():
+    grade, feedback = postureMain.postureGrading()
+    visualGlobals.finalPostureGrade = grade
+    visualGlobals.postureFeedbackArray = feedback
+    visualGlobals.testDoneFlag = True
+
+
 # Set up ZMQ context and socket
 context = zmq.Context()
 socket = context.socket(zmq.ROUTER)  # ROUTER socket for more complex communication
@@ -91,7 +99,7 @@ while True:
         
         visualGlobals.testDoneFlag = False
         import threading
-        grading_thread = threading.Thread(target=postureMain.postureGrading)
+        grading_thread = threading.Thread(target=grade_posture)
         grading_thread.start()
         
         while not visualGlobals.testDoneFlag:
